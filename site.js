@@ -1,6 +1,6 @@
 (function () {
   const THEME_KEY = 'soda-theme';
-  const DEFAULT_API_ORIGIN = 'http://sulingzhi.com:10031';
+  const DEFAULT_API_ORIGIN = 'https://battery.sulingzhi.com';
   const API_ORIGIN = (window.SODA_API_ORIGIN || DEFAULT_API_ORIGIN).replace(/\/+$/, '');
   const API_TIMEOUT_MS = 20000;
   const CHART_POINT_LIMIT = 100000;

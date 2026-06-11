@@ -7,7 +7,7 @@ This folder is a static website. It contains only HTML, browser JavaScript, CSS,
 - The frontend does not read files from `backend/`.
 - The frontend does not require a Python process to render the pages.
 - The frontend communicates with data services only through HTTP API requests whose paths start with `/api/`.
-- The shared API origin is configured in `site.js` by `window.SODA_API_ORIGIN || 'http://sulingzhi.com:10031'`.
+- The shared API origin is configured in `site.js` by `window.SODA_API_ORIGIN || 'https://battery.sulingzhi.com'`.
 
 ## Files
 
