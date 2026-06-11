@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SODA Battery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff;
+    --surface:#f6f6f6;
+    --card:#ffffff;
+    --control:#ffffff;
+    --text-strong:#050505;
+    --text:#2b2b2b;
+    --text-soft:#666666;
+    --fs-claim:44px;
+    --fs-title:18px;
+    --fs-body:14px;
+    --fs-note:12px;
+    --line:#d9d9d9;
+    --line-2:#ededed;
+    --blue:#111111;
+    --accent-blue:#2563eb;
+    --accent-green:#16a34a;
+    --accent-amber:#d97706;
+    --accent-rose:#e11d48;
+    --accent-violet:#7c3aed;
+    --accent-cyan:#0891b2;
+    --soda-red:#C00000;
+    --soda-gold:#E5AF4C;
+    --soda-blue:#0D3F86;
+    --shadow-soft:0 10px 24px rgba(0,0,0,.08);
+    --shadow-lift:0 18px 38px rgba(0,0,0,.14);
+    --feature-media-w:560px;
+    --feature-media-h:360px;
+    --hero-visual-ratio:8 / 5;
+  }
+  :root{color-scheme:light}
+  :root[data-theme="dark"]{
+    --bg:#000000;
+    --surface:#111111;
+    --card:#080808;
+    --control:#0d0d0d;
+    --text-strong:#f7f7f7;
+    --text:#d6d6d6;
+    --text-soft:#8a8a8a;
+    --line:#2a2a2a;
+    --line-2:#171717;
+    --blue:#f5f5f5;
+    --shadow-soft:0 10px 28px rgba(0,0,0,.46);
+    --shadow-lift:0 18px 42px rgba(0,0,0,.62);
+  }
+  :root[data-theme="dark"]{color-scheme:dark}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;padding:0;background-color:var(--bg);background-image:none;color:var(--text);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;font-size:var(--fs-body);line-height:1.5}
+  button,input,select,textarea,svg text{font-family:'Source Serif 4',Georgia,serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+
+  /* NAV */
+  nav.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav.top .row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:28px;height:68px}
+  .brand{display:flex;align-items:center;min-width:0;color:var(--text-strong)}
+  .brand-logo{display:block;width:100%;max-width:291px;height:auto;max-height:48px;object-fit:contain}
+  .nav-links{display:flex;justify-content:center;gap:32px;min-width:0;font-size:var(--fs-body);color:var(--text)}
+  .nav-links a{padding:4px 0;border-bottom:2px solid transparent}
+  .nav-links a:hover{color:var(--text-strong)}
+  .nav-right{display:flex;align-items:center;justify-content:flex-end;min-width:0;gap:10px;font-size:var(--fs-note);color:var(--text-soft);line-height:1;flex-wrap:nowrap}
+  .theme-toggle{flex:0 0 28px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:var(--fs-note);line-height:1;background:var(--control);color:var(--accent-amber);transition:color .12s}
+  :root[data-theme="dark"] .theme-toggle{color:#93c5fd}
+  .api-badge{min-height:28px;display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-note);font-weight:500;padding:3px 9px;border:1px solid var(--line);border-radius:99px;font-family:inherit;letter-spacing:.04em;line-height:1;white-space:nowrap;color:var(--text);background:var(--control)}
+  .api-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--text-soft)}
+  .api-badge.ok::before{background:var(--accent-green)}
+  .api-badge.err::before{background:var(--accent-rose)}
+
+  /* HERO */
+  .hero{padding:36px 0 28px}
+  .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,var(--feature-media-w));gap:56px;align-items:center}
+  .eyebrow{font-size:var(--fs-title);font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft);margin-bottom:16px}
+  h1.hero-title{font-weight:700;font-size:var(--fs-claim);line-height:1.1;letter-spacing:0;margin:0 0 20px;color:var(--text-strong)}
+  h1.hero-title em{font-style:normal;color:var(--text-strong)}
+  h1.hero-title em:nth-of-type(1){color:var(--soda-blue)}
+  h1.hero-title em:nth-of-type(2){
+    display:inline-block;
+    color:var(--soda-gold);
+    background-image:var(--age-crack-image,linear-gradient(90deg,var(--soda-gold) 0%,#f0ca72 54%,var(--soda-gold) 100%));
+    background-size:100% 100%;
+    background-position:center;
+    background-clip:text;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  h1.hero-title em:nth-of-type(3){
+    display:inline-block;
+    color:var(--soda-red);
+    background-image:var(--die-flame-image,linear-gradient(0deg,var(--soda-red) 0%,#ff4a00 48%,var(--soda-gold) 72%,#ffe66b 100%));
+    background-size:100% 150%;
+    background-position:center bottom;
+    background-clip:text;
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .hero-sub{font-size:var(--fs-body);color:var(--text);max-width:480px;line-height:1.6;margin-bottom:28px}
+  .btn-row{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:11px 18px;border-radius:7px;font-size:var(--fs-body);font-weight:500;border:1px solid var(--line);cursor:pointer;transition:all .15s;font-family:inherit;color:var(--text-strong);background:var(--control)}
+  .btn-primary{background:var(--control);color:var(--text-strong);border-color:var(--text-strong)}
+  .btn-primary:hover{background:var(--line-2)}
+  .hero-visual,.index-chart-wrap{width:100%;border-radius:0;background:transparent;border:1px solid color-mix(in srgb,var(--text-strong) 58%,var(--soda-blue));padding:6px;box-shadow:0 10px 24px rgba(13,63,134,.12),0 1px 0 rgba(0,0,0,.08)}
+  .hero-visual{height:auto;aspect-ratio:var(--hero-visual-ratio);margin:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .hero-visual img{width:100%;height:100%;object-fit:contain;display:block}
+
+  /* EXPLORE */
+  section.block{padding:24px 0}
+  .explore{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,var(--feature-media-w));gap:56px;align-items:center}
+  .index-chart-wrap{height:var(--feature-media-h);display:flex;flex-direction:column;justify-content:center}
+  .chart-head{display:flex;justify-content:center;text-align:center;margin-bottom:2px;gap:16px}
+  .chart-title{font-weight:600;font-size:var(--fs-title);color:var(--text-strong);line-height:1.1}
+  .chart-canvas{width:100%;height:auto;aspect-ratio:560 / 324;display:block;flex:0 0 auto;min-height:0}
+  .chart-canvas.chart-offline-grid{
+    background-color:color-mix(in srgb,var(--surface) 72%,var(--card));
+    background-image:
+      linear-gradient(var(--line-2) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+  /* RESEARCH grid */
+  .sec-head{text-align:left;margin-bottom:16px}
+  .sec-head h2{font-weight:600;font-size:var(--fs-title);color:var(--text-soft);margin:0;letter-spacing:.14em;text-transform:uppercase}
+  .research-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .r-card{background:var(--card);padding:28px 24px;min-height:200px;display:flex;flex-direction:column;gap:10px}
+  .r-card .icon{width:28px;height:28px;border-radius:6px;background:color-mix(in srgb,var(--icon-color,var(--accent-blue)) 12%,var(--card));border:1px solid color-mix(in srgb,var(--icon-color,var(--accent-blue)) 28%,var(--line));display:flex;align-items:center;justify-content:center;color:var(--icon-color,var(--accent-blue));font-size:var(--fs-note);font-weight:600}
+  .r-card:nth-child(1){--icon-color:var(--accent-blue)}
+  .r-card:nth-child(2){--icon-color:var(--accent-green)}
+  .r-card:nth-child(3){--icon-color:var(--accent-amber)}
+  .r-card:nth-child(4){--icon-color:var(--accent-cyan)}
+  .r-card:nth-child(5){--icon-color:var(--accent-violet)}
+  .r-card:nth-child(6){--icon-color:var(--accent-rose)}
+  .r-card h3{font-weight:600;font-size:var(--fs-title);margin:4px 0 0;color:var(--text-strong)}
+  .r-card p{font-size:var(--fs-body);color:var(--text);margin:0;flex:1;line-height:1.55}
+  .r-card .meta{font-size:var(--fs-note);color:var(--text-soft);display:flex;gap:16px;padding-top:10px}
+
+  /* TEAM */
+  .team-head{text-align:left;margin-bottom:16px}
+  .team-head .eyebrow{margin-bottom:10px}
+  .team-head h2{font-weight:600;font-size:var(--fs-title);margin:0;color:var(--text-strong);max-width:560px;line-height:1.4}
+  .team-grid{display:flex;flex-wrap:nowrap;gap:28px;justify-content:center}
+  .member{display:flex;flex-direction:column;gap:12px;text-align:center;align-items:center;width:154px;transition:transform .18s ease;background:none;border:0;padding:0;font-family:inherit;color:var(--text);cursor:pointer}
+  .avatar{width:154px;height:154px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:var(--fs-title);color:var(--text-strong);font-weight:600;box-shadow:var(--shadow-soft);transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+  .avatar img{width:100%;height:100%;border-radius:inherit;object-fit:cover;object-position:center top;display:block}
+  .member:hover{transform:translateY(-4px)}
+  .member:hover .avatar{transform:scale(1.08);box-shadow:var(--shadow-lift);background:var(--card)}
+  .member:hover .nm{color:var(--text-strong)}
+  .member:focus-visible{outline:2px solid var(--blue);outline-offset:6px;border-radius:12px}
+  .member .nm{font-weight:600;font-size:var(--fs-body);margin-top:4px;transition:color .18s ease}
+  .member .rl{font-size:var(--fs-note);color:var(--text-soft)}
+
+  /* DATASETS */
+  .datasets-head{margin-bottom:14px}
+  .dataset-list{border-bottom:1px solid var(--line)}
+  .dataset-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:4px;padding:18px 0;border-top:1px solid var(--line);align-items:start}
+  .dataset-kicker{font-size:var(--fs-body);color:var(--text-soft);line-height:1.35;white-space:nowrap}
+  .dataset-title{font-size:var(--fs-title);color:var(--text-strong);line-height:1.35;font-weight:600;margin-bottom:6px}
+  .dataset-desc{font-size:var(--fs-body);color:var(--text);line-height:1.55;margin:0}
+  .related-pubs{list-style:none;margin:14px 0 0;padding:10px 0 0 16px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:9px}
+  .related-pubs::before{content:"Related publications";font-size:var(--fs-note);letter-spacing:.12em;text-transform:uppercase;color:var(--text-soft);line-height:1.2;margin-bottom:1px}
+  .related-pubs li{font-size:var(--fs-body);color:var(--text-soft);line-height:1.45}
+  .related-pubs em{color:var(--text-strong);font-style:italic}
+
+  /* LAB equipment */
+  .lab-bubbles{display:flex;flex-wrap:nowrap;justify-content:center;gap:28px;padding:4px 0 12px}
+  .lab-bubble{width:154px;display:flex;flex-direction:column;align-items:center;gap:12px;background:none;border:0;padding:0;font-family:inherit;color:var(--text-strong);cursor:pointer}
+  .lab-bubble .pic{width:154px;height:154px;border-radius:10px;overflow:hidden;border:1px solid var(--line);box-shadow:var(--shadow-soft);transition:transform .18s ease,box-shadow .18s ease}
+  .lab-bubble img{width:100%;height:100%;object-fit:cover;display:block}
+  .lab-bubble span{font-size:var(--fs-note);font-weight:600;text-align:center;color:var(--text)}
+  .lab-bubble:hover .pic,.lab-bubble:focus-visible .pic{transform:scale(1.08);box-shadow:var(--shadow-lift)}
+  .lab-bubble:focus-visible{outline:2px solid var(--blue);outline-offset:6px;border-radius:12px}
+  .lab-popover{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg) 42%,rgba(0,0,0,.45));padding:24px}
+  .lab-popover.open{display:flex}
+  .lab-card{width:min(420px,calc(100vw - 48px));background:var(--card);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-lift);overflow:hidden}
+  .lab-card img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;background:var(--surface)}
+  .lab-card-body{padding:18px 20px 20px}
+  .lab-card-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:8px}
+  .lab-card h3{font-size:var(--fs-title);line-height:1.3;margin:0;color:var(--text-strong)}
+  .lab-card p{font-size:var(--fs-body);line-height:1.55;margin:0;color:var(--text)}
+  .lab-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--control);color:var(--text-soft);cursor:pointer;font-size:var(--fs-title);line-height:1}
+
+  /* FOOTER */
+  footer{padding:12px 0;border-top:1px solid var(--line);background:var(--bg)}
+  .foot-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;gap:12px}
+  .footer-logos{display:flex;align-items:center;gap:14px;min-width:0}
+  .footer-logo{display:block;height:auto;object-fit:contain}
+  .footer-logo.soda{width:194px;max-height:32px;order:3}
+  .footer-logo.ntu{width:88px;max-height:32px;order:1}
+  .footer-license{font-size:var(--fs-note);line-height:1.25;color:var(--text-soft);text-align:right;white-space:nowrap}
+  .footer-license-line + .footer-license-line::before{content:" "}
+
+  @media (prefers-reduced-motion:reduce){
+    h1.hero-title em:nth-of-type(2){background-image:linear-gradient(90deg,#c99b3b 0%,#e6bc62 54%,#b88430 100%)}
+    h1.hero-title em:nth-of-type(3){background-image:linear-gradient(0deg,var(--soda-red) 0%,#ff4a00 48%,var(--soda-gold) 72%,#ffe66b 100%)}
+  }
+
+  @media (max-width:960px){
+    nav.top .row{display:flex;height:auto;min-height:68px;flex-wrap:wrap;gap:12px;padding-top:12px;padding-bottom:12px}
+    .nav-right{margin-left:auto;align-self:center}
+    .nav-links{order:3;width:100%;flex-wrap:wrap;justify-content:space-between;gap:8px 18px}
+    .hero-grid,.explore{grid-template-columns:1fr}
+    .hero{padding:28px 0 22px}
+    section.block{padding:22px 0}
+    .hero-visual,.index-chart-wrap{height:auto}
+    .index-chart-wrap{min-height:280px}
+    .research-grid{grid-template-columns:1fr 1fr}
+    .dataset-row{grid-template-columns:70px minmax(0,1fr);gap:4px}
+    .team-grid{flex-wrap:wrap;gap:18px}
+    h1.hero-title{font-size:var(--fs-claim)}
+    .lab-bubbles{flex-wrap:wrap;gap:18px}
+    .lab-bubble{width:122px}
+    .lab-bubble .pic{width:122px;height:122px}
+    .member{width:122px}
+    .avatar{width:122px;height:122px;font-size:var(--fs-title)}
+    .foot-row{gap:10px}
+    .footer-logos{gap:9px;flex:0 1 auto}
+    .footer-logo.soda{width:174px;max-height:29px}
+    .footer-logo.ntu{width:78px;max-height:29px}
+    .footer-license{line-height:1.25;text-align:center;white-space:normal;flex:0 0 auto}
+    .footer-license-line{display:block}
+    .footer-license-line + .footer-license-line::before{content:""}
+  }
+  @media (max-width:520px){
+    .foot-row{flex-wrap:wrap}
+    .dataset-row{grid-template-columns:1fr;gap:8px}
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap row">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" src="image/soda_logo.png" alt="SODA Battery">
+    </a>
+    <div class="nav-links">
+      <a href="explorer.html">Data Explorer <strong aria-hidden="true">→</strong></a>
+      <a href="#research">Research</a>
+      <a href="#datasets">Dataset</a>
+      <a href="#team">Team</a>
+      <a href="#laboratory">Laboratory</a>
+    </div>
+    <div class="nav-right">
+      <span id="api-badge" class="api-badge loading">Checking…</span>
+      <span class="theme-toggle" title="Toggle theme">☀</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <h1 class="hero-title">Understanding How Batteries <em>Live</em>, <em>Age</em>, and <em>Die</em></h1>
+      <p class="hero-sub">SODA Battery curates life-cycle aging experiments and data tools for studying battery health, safety, power, charge, temperature, and remaining useful life.</p>
+      <a class="btn btn-primary" href="https://eexuyan.github.io/soda/index.html">SODA Group @ NTU Singapore <strong aria-hidden="true">↗</strong></a>
+    </div>
+    <figure class="hero-visual" aria-label="Overview of SODA Battery life-cycle aging experiment platforms">
+      <img src="image/Overview.png" alt="Overview of battery life-cycle aging experiment platforms and measured states">
+    </figure>
+  </div>
+</header>
+
+<!-- EXPLORE -->
+<section class="block">
+  <div class="wrap explore">
+    <div>
+      <h2 style="font-weight:700;font-size:var(--fs-claim);line-height:1.15;letter-spacing:0;margin:0 0 16px;color:var(--text-strong)">Visualize, Compare, Export</h2>
+      <p style="font-size:var(--fs-body);color:var(--text);margin:0 0 24px;line-height:1.6">Visualize, compare, and export performance and degradation data across chemistries, protocols, and conditions for your research.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="explorer.html">Explore Data <strong aria-hidden="true">→</strong></a>
+      </div>
+    </div>
+    <div class="index-chart-wrap">
+      <div class="chart-head">
+        <div>
+          <div class="chart-title">State-of-Health Retention</div>
+        </div>
+      </div>
+      <div class="chart-canvas" id="home-chart" role="img" aria-label="State of health retention as a function of cycle number"></div>
+    </div>
+  </div>
+</section>
+
+<!-- RESEARCH -->
+<section class="block" id="research">
+  <div class="wrap">
+    <div class="sec-head"><h2>Research</h2></div>
+    <div class="research-grid">
+      <div class="r-card">
+        <div class="icon">↘</div>
+        <h3>Lifespan Degradation</h3>
+        <p>Track capacity fade, resistance rise, and lifetime shifts across cycling conditions and cell formats.</p>
+      </div>
+      <div class="r-card">
+        <div class="icon">⇄</div>
+        <h3>Cross-Chemistry Insights</h3>
+        <p>Extract insights from LFP, NMC, NCA, and Sodium battery by comparing aging patterns with chemistry-specific behavior.</p>
+      </div>
+      <div class="r-card">
+        <div class="icon">▦</div>
+        <h3>Multi-Aspect Modeling</h3>
+        <p>Model coupled electrical, thermal, aging, and usage factors from measurements and test conditions.</p>
+      </div>
+      <div class="r-card">
+        <div class="icon">⌕</div>
+        <h3>Aging Mode Investigation</h3>
+        <p>Separate aging mechanisms such as lithium inventory loss, active-material loss, and resistance growth.</p>
+      </div>
+      <div class="r-card">
+        <div class="icon">!</div>
+        <h3>Early Fault Diagnosis</h3>
+        <p>Detect early warning patterns for short circuits, abnormal impedance, and unstable performance trajectories.</p>
+      </div>
+      <div class="r-card">
+        <div class="icon">▥</div>
+        <h3>From Cell To Pack</h3>
+        <p>Bridge cell measurements to module and pack behavior for scaling, variability, and operating limits.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATASETS -->
+<section class="block" id="datasets">
+  <div class="wrap">
+    <div class="datasets-head">
+      <div class="eyebrow">Dataset</div>
+    </div>
+    <div class="dataset-list">
+      <div class="dataset-row">
+        <div class="dataset-kicker">2026 May</div>
+        <div>
+          <div class="dataset-title">To Be Updated - Dataset Name</div>
+          <p class="dataset-desc">To Be Updated - Dataset Description</p>
+          <ul class="related-pubs">
+            <li>To be updated, “Publication title,” <em>Publication source</em>, 2026.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="dataset-row">
+        <div class="dataset-kicker">2026 May</div>
+        <div>
+          <div class="dataset-title">To Be Updated - Dataset Name</div>
+          <p class="dataset-desc">To Be Updated - Dataset Description</p>
+          <ul class="related-pubs">
+            <li>To be updated, “Publication title,” <em>Publication source</em>, 2026.</li>
+            <li>To be updated, “Publication title,” <em>Publication source</em>, 2026.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section class="block" id="team">
+  <div class="wrap">
+    <div class="team-head">
+      <div class="eyebrow">Team</div>
+    </div>
+    <div class="team-grid">
+      <a class="member" href="https://eexuyan.github.io/soda/index.html"><span class="avatar"><img src="people/xuyan.jpg" alt="Xu Yan"></span><span class="nm">Xu Yan</span><span class="rl">Director</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- LABORATORY -->
+<section class="block" id="laboratory">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="eyebrow" style="margin:0">Laboratory</div>
+    </div>
+    <div class="lab-bubbles">
+      <button class="lab-bubble" type="button" data-title="Battery Cycler" data-image="image/batterycycler.png" data-alt="Battery cycler setup with Chroma 17020 and 17210 systems, BioLogic BCS-815 and SP-150 instruments, and Neware CT-4000 channels" data-desc="The battery cycler setup integrates Chroma 17020 pack testing, Chroma 17210 cell testing, BioLogic BCS-815 and SP-150 electrochemical instruments, and Neware CT-4000 multi-channel testing. Together, these systems support programmable cycling, pulse tests, and diagnostic protocols, with voltage, current, capacity, energy, and cycle data recorded for aging analysis and cell-to-pack studies.">
+        <span class="pic"><img alt="Battery cycler setup with Chroma 17020 and 17210 systems, BioLogic BCS-815 and SP-150 instruments, and Neware CT-4000 channels" src="image/batterycycler.png"></span>
+        <span>Battery Cycler</span>
+      </button>
+      <button class="lab-bubble" type="button" data-title="Thermal Chamber" data-image="image/thermalchamber.png" data-alt="Thermal chamber array for battery aging tests" data-desc="The thermal chamber array provides stable programmed temperature environments for long battery aging and performance experiments, supporting repeatable capacity fade, resistance growth, and cross-condition comparison studies.">
+        <span class="pic"><img alt="Thermal chamber array for battery aging tests" src="image/thermalchamber.png"></span>
+        <span>Thermal Chamber</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<div class="lab-popover" id="lab-popover" aria-hidden="true">
+  <div class="lab-card" role="dialog" aria-modal="true" aria-labelledby="lab-pop-title">
+    <img id="lab-pop-img" alt="">
+    <div class="lab-card-body">
+      <div class="lab-card-head">
+        <h3 id="lab-pop-title"></h3>
+        <button class="lab-close" type="button" aria-label="Close equipment detail">×</button>
+      </div>
+      <p id="lab-pop-desc"></p>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap foot-row">
+    <div class="footer-logos" aria-label="NTU and SODA">
+      <img class="footer-logo ntu" src="image/ntu_logo.png" alt="Nanyang Technological University">
+      <img class="footer-logo soda" src="image/soda_logo.png" alt="SODA Battery">
+    </div>
+    <span class="footer-license"><span class="footer-license-line">© 2026 SODA Group @ NTU Singapore.</span><span class="footer-license-line">All rights reserved.</span></span>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+<script id="echarts-script" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" async></script>
+<script>
+  SodaSite.init();
+
+  const INDEX_API_ENDPOINTS = Object.freeze({
+    status: '/api/status',
+    retention: '/api/retention'
+  });
+
+  function startAgeCrack() {
+    const ageWord = document.querySelector('.hero-title em:nth-of-type(2)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!ageWord || reduceMotion) return;
+
+    const crackW = 180;
+    const crackH = 96;
+    const canvas = document.createElement('canvas');
+    canvas.width = crackW;
+    canvas.height = crackH;
+    const ctx = canvas.getContext('2d');
+    let cracks = [];
+
+    function makeCrackPath(startX, startY, angle, length, depth) {
+      const points = [{ x: startX, y: startY }];
+      let x = startX;
+      let y = startY;
+      let currentAngle = angle;
+      const steps = 8 + Math.floor(Math.random() * 7);
+      for (let i = 0; i < steps; i += 1) {
+        const step = (length / steps) * (.72 + Math.random() * .7);
+        currentAngle += (Math.random() - .5) * .78;
+        x += Math.cos(currentAngle) * step;
+        y += Math.sin(currentAngle) * step;
+        points.push({
+          x: Math.max(2, Math.min(crackW - 2, x)),
+          y: Math.max(3, Math.min(crackH - 3, y))
+        });
+      }
+
+      const branches = [];
+      if (depth > 0) {
+        const branchCount = 2 + Math.floor(Math.random() * 3);
+        for (let i = 0; i < branchCount; i += 1) {
+          const anchor = points[1 + Math.floor(Math.random() * Math.max(1, points.length - 2))];
+          const branchAngle = currentAngle + (Math.random() > .5 ? 1 : -1) * (.75 + Math.random() * .7);
+          branches.push(makeCrackPath(anchor.x, anchor.y, branchAngle, length * (.34 + Math.random() * .36), depth - 1));
+        }
+      }
+
+      return { points, branches, growAt: Math.random() * .36 };
+    }
+
+    function makeRootCrack() {
+      const startX = 16 + Math.random() * (crackW - 32);
+      const startY = 22 + Math.random() * (crackH - 42);
+      const angle = (Math.random() * Math.PI * 2) - Math.PI;
+      return {
+        path: makeCrackPath(startX, startY, angle, 60 + Math.random() * 84, 2),
+        age: 0,
+        growFrames: 72 + Math.floor(Math.random() * 58),
+        replaceAt: .78 + Math.random() * .18,
+        fading: false,
+        fadeAge: 0,
+        fadeFrames: 18 + Math.floor(Math.random() * 18)
+      };
+    }
+
+    function seedCracks() {
+      const rootCount = 4 + Math.floor(Math.random() * 3);
+      cracks = Array.from({ length: rootCount }, makeRootCrack);
+    }
+
+    function drawGoldBase() {
+      const gold = ctx.createLinearGradient(0, 0, crackW, crackH);
+      gold.addColorStop(0, '#b9822f');
+      gold.addColorStop(.36, '#e1ad4d');
+      gold.addColorStop(.62, '#f0ca72');
+      gold.addColorStop(1, '#b77d2b');
+      ctx.fillStyle = gold;
+      ctx.fillRect(0, 0, crackW, crackH);
+
+      for (let i = 0; i < 420; i += 1) {
+        const tone = 185 + Math.random() * 42;
+        ctx.fillStyle = `rgba(${tone},${135 + Math.random() * 55},${42 + Math.random() * 24},${.05 + Math.random() * .08})`;
+        ctx.fillRect(Math.random() * crackW, Math.random() * crackH, 1.1, 1.1);
+      }
+    }
+
+    function drawPath(path, progress, opacityScale) {
+      const localProgress = Math.max(0, Math.min(1, (progress - path.growAt) / Math.max(.18, 1 - path.growAt)));
+      if (localProgress <= 0) return;
+
+      const maxIndex = Math.max(1, Math.floor((path.points.length - 1) * localProgress));
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = `rgba(55,39,31,${.56 * opacityScale})`;
+      ctx.lineWidth = 4.8;
+      ctx.beginPath();
+      ctx.moveTo(path.points[0].x, path.points[0].y);
+      for (let i = 1; i <= maxIndex; i += 1) ctx.lineTo(path.points[i].x, path.points[i].y);
+      ctx.stroke();
+
+      ctx.strokeStyle = `rgba(255,242,194,${.28 * opacityScale})`;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(path.points[0].x + 1, path.points[0].y - 1);
+      for (let i = 1; i <= maxIndex; i += 1) ctx.lineTo(path.points[i].x + 1, path.points[i].y - 1);
+      ctx.stroke();
+
+      path.branches.forEach(branch => drawPath(branch, localProgress, opacityScale * .84));
+    }
+
+    function drawCracks() {
+      drawGoldBase();
+      cracks.forEach((crack, index) => {
+        const grow = Math.min(1, crack.age / (crack.growFrames * crack.replaceAt));
+        const fade = crack.fading ? Math.max(0, 1 - (crack.fadeAge / crack.fadeFrames)) : 1;
+        drawPath(crack.path, grow, fade);
+
+        if (crack.fading) {
+          crack.fadeAge += 1;
+        } else {
+          crack.age += 1;
+        }
+
+        const reachedThreshold = crack.age >= crack.growFrames * crack.replaceAt;
+        const exceededLifetime = crack.age >= crack.growFrames + 44;
+        if (!crack.fading && ((reachedThreshold && Math.random() > .965) || exceededLifetime)) {
+          crack.fading = true;
+          crack.fadeAge = 0;
+        }
+        if (crack.fading && crack.fadeAge >= crack.fadeFrames) {
+          cracks[index] = makeRootCrack();
+        }
+      });
+      ageWord.style.setProperty('--age-crack-image', `url("${canvas.toDataURL('image/png')}")`);
+      window.setTimeout(() => window.requestAnimationFrame(drawCracks), 58);
+    }
+
+    seedCracks();
+    drawCracks();
+  }
+
+  function startDieFlame() {
+    const dieWord = document.querySelector('.hero-title em:nth-of-type(3)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!dieWord || reduceMotion) return;
+
+    const fireW = 180;
+    const fireH = 124;
+    const canvas = document.createElement('canvas');
+    canvas.width = fireW;
+    canvas.height = fireH;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    const heat = new Float32Array(fireW * fireH);
+    const next = new Float32Array(fireW * fireH);
+    const image = ctx.createImageData(fireW, fireH);
+    const flameStrength = .98;
+    const flameOpacity = .98;
+    const flameDensity = .25;
+    let frame = 0;
+
+    const clamp = value => Math.max(0, Math.min(255, value));
+    const colorForHeat = value => {
+      const v = clamp(value * flameStrength);
+      if (v < 35) {
+        const t = v / 35;
+        return [192 + 38 * t, 0 + 38 * t, 0, (168 + 55 * t) * flameOpacity];
+      }
+      if (v < 95) {
+        const t = (v - 35) / 60;
+        return [230 + 25 * t, 38 + 84 * t, 0, (223 + 24 * t) * flameOpacity];
+      }
+      if (v < 170) {
+        const t = (v - 95) / 75;
+        return [255 - 26 * t, 122 + 53 * t, 0 + 76 * t, (247 + 8 * t) * flameOpacity];
+      }
+      const t = (v - 170) / 85;
+      return [229 + 26 * t, 175 + 61 * t, 76 + 44 * t, 255 * flameOpacity];
+    };
+
+    function seedBase() {
+      const baseY = fireH - 1;
+      for (let x = 0; x < fireW; x += 1) {
+        const wave = Math.sin((x * .12) + frame * .17) * 28;
+        const active = Math.random() < flameDensity;
+        const burst = active && Math.random() > .82 ? Math.random() * 95 : 0;
+        const ember = active ? Math.random() * 72 : 0;
+        heat[baseY * fireW + x] = active ? 175 + wave + burst + ember : 42 + Math.random() * 36;
+        heat[(baseY - 1) * fireW + x] = active ? 145 + wave * .7 + Math.random() * 80 : 28 + Math.random() * 30;
+        heat[(baseY - 2) * fireW + x] = active ? 95 + Math.random() * 95 : Math.random() * 24;
+      }
+
+      for (let i = 0; i < 3; i += 1) {
+        if (Math.random() > flameDensity) continue;
+        const tongueX = Math.floor(Math.random() * fireW);
+        const tongueH = 24 + Math.floor(Math.random() * 44);
+        const tongueW = 3 + Math.floor(Math.random() * 8);
+        for (let y = fireH - tongueH; y < fireH - 4; y += 1) {
+          const bend = Math.round(Math.sin((fireH - y) * .18 + frame * .25) * tongueW);
+          for (let x = -tongueW; x <= tongueW; x += 1) {
+            const px = tongueX + x + bend + Math.floor((Math.random() - .5) * 4);
+            if (px >= 0 && px < fireW) {
+              const falloff = 1 - Math.abs(x) / (tongueW + 1);
+              heat[y * fireW + px] = Math.max(heat[y * fireW + px], 120 + 115 * falloff + Math.random() * 45);
+            }
+          }
+        }
+      }
+    }
+
+    function stepFlame() {
+      seedBase();
+
+      for (let y = 0; y < fireH - 1; y += 1) {
+        const rise = fireH - y;
+        const drift = Math.round(Math.sin(frame * .09 + y * .12) * 2);
+        for (let x = 0; x < fireW; x += 1) {
+          const wobble = Math.floor((Math.random() - .5) * 5) + drift;
+          const belowY = Math.min(fireH - 1, y + 1 + Math.floor(Math.random() * 2));
+          const x1 = Math.max(0, Math.min(fireW - 1, x + wobble));
+          const x2 = Math.max(0, Math.min(fireW - 1, x + wobble - 1));
+          const x3 = Math.max(0, Math.min(fireW - 1, x + wobble + 1));
+          const heatAvg = (
+            heat[belowY * fireW + x1] * .46 +
+            heat[belowY * fireW + x2] * .25 +
+            heat[belowY * fireW + x3] * .25 +
+            heat[Math.min(fireH - 1, y + 2) * fireW + x] * .08
+          );
+          const cooling = 1.5 + Math.random() * 13 + (rise / fireH) * 7;
+          next[y * fireW + x] = Math.max(0, heatAvg - cooling);
+        }
+      }
+
+      heat.set(next);
+
+      for (let i = 0; i < heat.length; i += 1) {
+        const [r, g, b, a] = colorForHeat(heat[i]);
+        const p = i * 4;
+        image.data[p] = r;
+        image.data[p + 1] = g;
+        image.data[p + 2] = b;
+        image.data[p + 3] = a;
+      }
+
+      ctx.putImageData(image, 0, 0);
+      dieWord.style.setProperty('--die-flame-image', `url("${canvas.toDataURL('image/png')}")`);
+      frame += 1;
+      window.setTimeout(() => window.requestAnimationFrame(stepFlame), 42);
+    }
+
+    stepFlame();
+  }
+
+  startAgeCrack();
+  startDieFlame();
+
+  const labPopover = document.getElementById('lab-popover');
+  const labImage = document.getElementById('lab-pop-img');
+  const labTitle = document.getElementById('lab-pop-title');
+  const labDesc = document.getElementById('lab-pop-desc');
+
+  document.querySelectorAll('.lab-bubble').forEach(button => {
+    button.addEventListener('click', () => {
+      const image = button.querySelector('img');
+      labImage.src = button.dataset.image || image.src;
+      labImage.alt = button.dataset.alt || image.alt;
+      labTitle.textContent = button.dataset.title;
+      labDesc.textContent = button.dataset.desc;
+      labPopover.classList.add('open');
+      labPopover.setAttribute('aria-hidden', 'false');
+    });
+  });
+
+  function closeLabPopover() {
+    labPopover.classList.remove('open');
+    labPopover.setAttribute('aria-hidden', 'true');
+  }
+
+  document.querySelector('.lab-close').addEventListener('click', closeLabPopover);
+  labPopover.addEventListener('click', event => {
+    if (event.target === labPopover) closeLabPopover();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') {
+      closeLabPopover();
+    }
+  });
+
+  const homeChartEl = document.getElementById('home-chart');
+  let homeChart = null;
+  const homeChartColors = SodaSite.constants.COLORS;
+  const {
+    lineSeriesOption,
+    scrollLegendOption,
+    seriesExtent,
+  } = SodaSite.chart;
+  let homeChartPayload = { type: 'empty', message: 'Loading data...' };
+
+  function initHomeChart() {
+    if (homeChart || !homeChartEl || !window.echarts) return homeChart;
+    homeChartEl.textContent = '';
+    homeChartEl.style.removeProperty('display');
+    homeChartEl.style.removeProperty('align-items');
+    homeChartEl.style.removeProperty('justify-content');
+    homeChartEl.style.removeProperty('color');
+    homeChart = echarts.init(homeChartEl, null, { renderer: 'canvas' });
+    SodaSite.chart.bindChartHoverRestore(homeChart);
+    return homeChart;
+  }
+
+  function homeChartBaseOption({ xmin = 0, xmax = 1, ymin = 0, ymax = 1, message = '', showLabels = true }) {
+    return SodaSite.chart.chartBaseOption({
+      xAxisLabel: 'Cycle number',
+      yAxisLabel: 'Capacity retention (%)',
+      xmin,
+      xmax,
+      ymin,
+      ymax,
+      message,
+      showLabels,
+      colors: homeChartColors,
+      yDivisions: 4,
+      panelVar: '--card',
+      tooltipFormatter(params) {
+        const item = Array.isArray(params) ? params[0] : params;
+        if (!item) return '';
+        const x = Number(item.value?.[0]);
+        const y = Number(item.value?.[1]);
+        return `Cycle ${Number.isFinite(x) ? Math.round(x) : '-'}<br>${SodaSite.esc(item.seriesName)}: ${Number.isFinite(y) ? y.toFixed(1) : '-'}%`;
+      }
+    });
+  }
+
+  function setHomeChartOption(option, fallbackText = '') {
+    if (!initHomeChart()) {
+      homeChartEl.textContent = fallbackText || 'Chart library unavailable.';
+      homeChartEl.style.display = 'flex';
+      homeChartEl.style.alignItems = 'center';
+      homeChartEl.style.justifyContent = 'center';
+      homeChartEl.style.color = 'var(--text-soft)';
+      return;
+    }
+    homeChart.setOption(option, true);
+  }
+
+  function setHomeChartOfflineGrid(active) {
+    homeChartEl.classList.toggle('chart-offline-grid', active);
+  }
+
+  function renderHomeChartPayload() {
+    if (homeChartPayload.type === 'empty') {
+      setHomeChartOfflineGrid(homeChartPayload.offlineGrid === true);
+      const option = homeChartBaseOption({
+        message: homeChartPayload.message,
+        showLabels: homeChartPayload.showLabels !== false
+      });
+      setHomeChartOption(option, homeChartPayload.message);
+      return;
+    }
+    setHomeChartOfflineGrid(false);
+    renderHomeBatteryChart(homeChartPayload.series, true);
+  }
+
+  function drawHomeEmptyChart(message, showLabels = false, offlineGrid = false) {
+    homeChartPayload = { type: 'empty', message, showLabels, offlineGrid };
+    renderHomeChartPayload();
+  }
+
+  function renderHomeBatteryChart(series, fromStoredPayload = false) {
+    if (!fromStoredPayload) homeChartPayload = { type: 'series', series };
+    setHomeChartOfflineGrid(false);
+    const displaySeries = SodaSite.chart.limitSeriesForDisplay(series);
+    const validSeries = displaySeries.filter(item => item.data.cycles.length && item.data.values.length);
+    if (!validSeries.length) {
+      drawHomeEmptyChart('SOH data is unavailable.');
+      return;
+    }
+
+    const xExtent = seriesExtent(validSeries, 'cycles');
+    const yExtent = seriesExtent(validSeries, 'values');
+    if (!xExtent || !yExtent) {
+      drawHomeEmptyChart('SOH data is unavailable.');
+      return;
+    }
+    const kinds = [...new Set(validSeries.map(item => item.cell.manufacturer || 'Cell'))];
+    const colorByKind = Object.fromEntries(kinds.map((name, index) => [name, homeChartColors[index % homeChartColors.length]]));
+    const fontSize = SodaSite.chart.normalChartFontSize();
+    const option = homeChartBaseOption({
+      xmin: xExtent.min,
+      xmax: xExtent.max,
+      ymin: yExtent.min,
+      ymax: yExtent.max
+    });
+    option.legend = scrollLegendOption({
+      selectedMode: false,
+      data: kinds,
+      itemHeight: 2,
+      chartElement: homeChartEl,
+      fontSize,
+      panelVar: '--card',
+    });
+    option.series = validSeries.map(item => {
+      const data = item.data.cycles.map((cycle, index) => {
+        const value = Number(item.data.values[index]);
+        return Number.isFinite(value) ? [cycle, value] : null;
+      }).filter(Boolean);
+      const name = item.cell.manufacturer || 'Cell';
+      const color = colorByKind[name];
+      return lineSeriesOption({
+        name,
+        data,
+        symbol: 'circle',
+        symbolSize: 4,
+        color,
+        itemOpacity: 0,
+        hoverItemOpacity: 0,
+        blurItemOpacity: 0,
+      });
+    });
+    setHomeChartOption(option);
+  }
+
+  if (homeChartEl) {
+    const homeChartResize = new ResizeObserver(() => {
+      if (initHomeChart()) homeChart.resize();
+      renderHomeChartPayload();
+    });
+    homeChartResize.observe(homeChartEl);
+    new MutationObserver(renderHomeChartPayload)
+      .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    document.getElementById('echarts-script')?.addEventListener('load', () => {
+      if (initHomeChart()) renderHomeChartPayload();
+    });
+  }
+
+  async function updateApiBadge() {
+    const badge = document.getElementById('api-badge');
+    const status = await SodaSite.apiFetch(INDEX_API_ENDPOINTS.status, null);
+    SodaSite.setApiBadge(badge, status);
+  }
+
+  async function loadHomeBatteryChart() {
+    drawHomeEmptyChart('Loading data…');
+    try {
+      const payload = await SodaSite.apiFetch(INDEX_API_ENDPOINTS.retention);
+      renderHomeBatteryChart(payload.series || []);
+    } catch (error) {
+      drawHomeEmptyChart('Server Offline. Please try again later.', false, true);
+    }
+  }
+
+  updateApiBadge();
+  loadHomeBatteryChart();
+</script>
+</body>
+</html>

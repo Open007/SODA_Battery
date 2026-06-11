@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SODA Battery — Data Explorer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --surface:#f6f6f6; --panel:#ffffff;
+    --control:#ffffff;
+    --text-strong:#050505; --text:#2b2b2b; --text-soft:#666666;
+    --fs-claim:44px; --fs-title:18px; --fs-body:14px; --fs-note:12px;
+    --line:#d9d9d9; --line-2:#ededed;
+    --blue:#111111; --blue-2:#f2f2f2;
+    --accent-blue:#2563eb; --accent-green:#16a34a; --accent-amber:#d97706; --accent-rose:#e11d48; --accent-violet:#7c3aed; --accent-cyan:#0891b2;
+  }
+  :root{color-scheme:light}
+  :root[data-theme="dark"]{
+    --bg:#000000; --surface:#111111; --panel:#080808;
+    --control:#0d0d0d;
+    --text-strong:#f7f7f7; --text:#d6d6d6; --text-soft:#8a8a8a;
+    --line:#2a2a2a; --line-2:#171717;
+    --blue:#f5f5f5; --blue-2:#171717;
+  }
+  :root[data-theme="dark"]{color-scheme:dark}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  html,body{margin:0;padding:0;background-color:var(--bg);background-image:none;color:var(--text);font-family:'Source Serif 4',Georgia,serif;-webkit-font-smoothing:antialiased;font-size:var(--fs-body);line-height:1.5}
+  button,input,select,textarea,svg text{font-family:'Source Serif 4',Georgia,serif}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:inherit}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+  nav.top{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav.top .row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;column-gap:28px;height:68px}
+  .brand{display:flex;align-items:center;min-width:0;color:var(--text-strong)}
+  .brand-logo{display:block;width:100%;max-width:291px;height:auto;max-height:48px;object-fit:contain}
+  .footer-logos{display:flex;align-items:center;gap:14px;min-width:0}
+  .footer-logo{display:block;height:auto;object-fit:contain}
+  .footer-logo.soda{width:194px;max-height:32px;order:3}
+  .footer-logo.ntu{width:88px;max-height:32px;order:1}
+  .footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;gap:12px}
+  .footer-license{font-size:var(--fs-note);line-height:1.25;color:var(--text-soft);text-align:right;white-space:nowrap}
+  .footer-license-line + .footer-license-line::before{content:" "}
+  .nav-links{display:flex;justify-content:center;gap:22px;min-width:0;font-size:var(--fs-body);color:var(--text)}
+  .nav-links a.active{color:var(--text-strong);font-weight:400}
+  .nav-right{display:flex;align-items:center;justify-content:flex-end;min-width:0;gap:10px;font-size:var(--fs-note);color:var(--text-soft);line-height:1;flex-wrap:nowrap}
+  .theme-toggle{flex:0 0 28px;width:28px;height:28px;border-radius:50%;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:var(--fs-note);line-height:1;background:var(--control);color:var(--accent-amber);transition:color .12s}
+  :root[data-theme="dark"] .theme-toggle{color:#93c5fd}
+  /* api badge */
+  .api-badge{min-height:28px;display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-note);font-weight:500;padding:3px 9px;border:1px solid var(--line);border-radius:99px;font-family:inherit;letter-spacing:.04em;line-height:1;white-space:nowrap;color:var(--text);background:var(--control)}
+  .api-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--text-soft)}
+  .api-badge.ok::before{background:var(--accent-green)}
+  .api-badge.err::before{background:var(--accent-rose)}
+
+  /* page head */
+  .page-head{padding:24px 0 14px;background:var(--bg)}
+  .eyebrow{font-size:var(--fs-title);font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-soft);margin-bottom:14px}
+  .page-head h1{font-weight:700;font-size:var(--fs-claim);line-height:1.1;letter-spacing:0;margin:0 0 10px;color:var(--text-strong)}
+  .page-head p{font-size:var(--fs-body);color:var(--text);margin:0 0 20px;max-width:none}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:7px;font-size:var(--fs-body);font-weight:500;border:1px solid var(--line);cursor:pointer;background:var(--control);color:var(--text-strong);font-family:inherit;transition:border-color .12s}
+  .btn:hover{border-color:var(--text-strong)}
+  .btn.primary{background:var(--control);color:var(--text-strong);border-color:var(--line)}
+  .btn.primary:hover{background:var(--line-2);border-color:var(--text-soft)}
+  /* panel */
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:12px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+  .panel-head{padding:16px 24px;border-bottom:1px solid var(--line);font-weight:600;font-size:var(--fs-title);display:flex;justify-content:space-between;align-items:center}
+  .panel-body{padding:12px 24px}
+  /* filters */
+  .filter-row{display:grid;grid-template-columns:130px 1fr auto;gap:16px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line-2)}
+  .filter-row:last-child{border-bottom:0}
+  .filter-row>.label{font-size:var(--fs-body);color:var(--text);font-weight:500}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{padding:5px 11px;border-radius:6px;border:1px solid var(--line);background:var(--control);font-size:var(--fs-note);color:var(--text);cursor:pointer;user-select:none;font-family:inherit;transition:all .1s}
+  .chip:hover{border-color:var(--text-soft)}
+  .chip.active{background:var(--blue-2);border-color:var(--text-strong);color:var(--text-strong);font-weight:500}
+  .reset{font-size:var(--fs-note);color:var(--text);cursor:pointer;background:none;border:0;font-family:inherit;white-space:nowrap;align-self:center;justify-self:end}
+  .reset:hover{text-decoration:underline}
+  .slider-wrap{display:flex;align-items:center;gap:12px}
+  .slider-wrap .mono{font-size:var(--fs-note);color:var(--text-soft);min-width:44px}
+  input[type=range]{flex:1;accent-color:var(--blue)}
+  .actions-row{display:flex;gap:10px;padding:10px 16px 14px;border-top:1px solid var(--line-2)}
+  /* tabs */
+  .tabs{display:flex;gap:28px;padding:0 24px;border-bottom:1px solid var(--line)}
+  .tab{padding:14px 0;font-size:var(--fs-body);color:var(--text-soft);cursor:pointer;border-bottom:2px solid transparent;font-weight:500;background:none;border-left:0;border-right:0;border-top:0;font-family:inherit;transition:color .12s}
+  .tab.active{color:var(--text-strong);border-bottom-color:var(--blue)}
+  .cycle-controls{--plot-label-width:68px;padding:10px 24px 14px;min-height:44px}
+  .cycle-track-group{display:grid;grid-template-columns:var(--plot-label-width) minmax(0,1fr);align-items:center;gap:16px;width:100%}
+  .track-buttons{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .track-btn{padding:4px 10px;border:1px solid var(--line);border-radius:5px;background:var(--control);cursor:pointer;font-size:var(--fs-note);font-family:inherit;color:var(--text)}
+  .track-btn.active{background:var(--blue-2);border-color:var(--text-strong);color:var(--text-strong);font-weight:500}
+  .track-btn.disabled{color:var(--text-soft);border-color:var(--line);background:var(--panel);cursor:default;opacity:.72}
+  /* chart */
+  .explorer-chart-wrap{padding:2px}
+  .chart-head{display:flex;justify-content:center;align-items:center;text-align:center;margin:6px 0 2px}
+  .chart-head h3{font-size:var(--fs-title);font-weight:600;margin:0;line-height:1.1;color:var(--text-strong)}
+  #chart-canvas{width:100%;height:auto;aspect-ratio:560 / 324;display:block;min-height:0}
+  #chart-canvas.chart-offline-grid{
+    background-color:color-mix(in srgb,var(--surface) 72%,var(--panel));
+    background-image:
+      linear-gradient(var(--line-2) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
+    background-size:28px 28px;
+  }
+  .legend-box{display:none}
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:var(--fs-note);color:var(--text);font-family:inherit}
+  .legend-item i{width:14px;height:2px;display:inline-block}
+  /* ts cycle picker */
+  .ts-controls{--ts-label-width:68px;padding:10px 24px 14px;display:flex;flex-direction:column;align-items:stretch;gap:10px;font-size:var(--fs-body);color:var(--text)}
+  .cycle-range-control{display:grid;grid-template-columns:var(--ts-label-width) minmax(96px,1fr) auto;align-items:center;gap:16px;width:100%}
+  .control-label{font-size:var(--fs-body);color:var(--text);white-space:nowrap}
+  .cycle-range{--range-start:0%;--range-end:100%;--range-start-pct:0%;--range-end-pct:100%;--range-thumb:16px;--range-inset:8px;--range-start-color:#2563eb;--range-end-color:#e11d48;--range-dim:rgba(210,218,218,.72);position:relative;min-width:96px;height:28px;display:flex;align-items:center}
+  .cycle-range::before{content:"";position:absolute;left:var(--range-inset);right:var(--range-inset);top:50%;height:6px;border-radius:999px;transform:translateY(-50%);background:linear-gradient(90deg,#2563eb 0%,#16a34a 38%,#eab308 68%,#e11d48 100%);opacity:.9;pointer-events:none;z-index:0}
+  .cycle-range::after{content:"";position:absolute;left:var(--range-inset);right:var(--range-inset);top:50%;height:6px;border-radius:999px;transform:translateY(-50%);background:linear-gradient(90deg,var(--range-dim) 0%,var(--range-dim) var(--range-start-pct),transparent var(--range-start-pct),transparent var(--range-end-pct),var(--range-dim) var(--range-end-pct),var(--range-dim) 100%);pointer-events:none;z-index:0}
+  .cycle-range input[type=range]{-webkit-appearance:none;appearance:none;position:absolute;inset:0;z-index:1;width:100%;height:28px;margin:0;background:transparent;pointer-events:none;accent-color:var(--range-start-color)}
+  .cycle-range input[type=range]::-webkit-slider-runnable-track{height:6px;background:transparent;border:0}
+  .cycle-range input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:var(--range-thumb);height:var(--range-thumb);border:0;border-radius:999px;background:currentColor;box-shadow:0 0 0 2px var(--blue-2);pointer-events:auto;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease;margin-top:-5px}
+  .cycle-range input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.08);box-shadow:0 0 0 4px var(--blue-2)}
+  .cycle-range input[type=range]::-moz-range-track{height:6px;background:transparent;border:0}
+  .cycle-range input[type=range]::-moz-range-progress{background:transparent}
+  .cycle-range input[type=range]::-moz-range-thumb{width:var(--range-thumb);height:var(--range-thumb);border:0;border-radius:999px;background:currentColor;box-shadow:0 0 0 2px var(--blue-2);pointer-events:auto;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
+  .cycle-range input[type=range]::-moz-range-thumb:hover{transform:scale(1.08);box-shadow:0 0 0 4px var(--blue-2)}
+  .cycle-range.no-data input[type=range]::-webkit-slider-thumb{box-shadow:0 0 0 2px var(--line);cursor:default}
+  .cycle-range.no-data input[type=range]::-webkit-slider-thumb:hover{transform:none;box-shadow:0 0 0 2px var(--line)}
+  .cycle-range.no-data input[type=range]::-moz-range-thumb{box-shadow:0 0 0 2px var(--line);cursor:default}
+  .cycle-range.no-data input[type=range]::-moz-range-thumb:hover{transform:none;box-shadow:0 0 0 2px var(--line)}
+  .cycle-range-value{min-width:64px;text-align:right;font-size:var(--fs-note);color:var(--text-soft);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ts-track-group{display:grid;grid-template-columns:var(--ts-label-width) minmax(0,1fr);align-items:center;gap:16px;width:100%}
+  .ts-track-label{font-size:var(--fs-body);color:var(--text);white-space:nowrap}
+  .ts-track-buttons{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  /* cell browser */
+  #cell-browser{
+    --cell-row-height:40px;
+    --cell-scrollbar-gutter:16px;
+    --cell-browser-fixed-width:682px;
+    --cell-browser-gap:clamp(8px,calc((100% - var(--cell-browser-fixed-width)) / 8),16px);
+    --cell-browser-columns:20px 320px 56px 20px 58px 48px 48px 64px 48px;
+  }
+  .cell-browser-head,.cell-row{grid-template-columns:var(--cell-browser-columns)}
+  .cell-browser-head{display:grid;column-gap:var(--cell-browser-gap);justify-content:start;padding:8px calc(16px + var(--cell-scrollbar-gutter)) 8px 16px;background:var(--surface);border-bottom:1px solid var(--line);font-size:var(--fs-note);font-weight:600;text-transform:uppercase;letter-spacing:0;color:var(--text-soft);font-family:inherit}
+  .cell-row{display:grid;column-gap:var(--cell-browser-gap);justify-content:start;height:var(--cell-row-height);padding:0 16px;border-bottom:1px solid var(--line-2);cursor:pointer;transition:background .1s;align-items:center}
+  .cell-browser-head>span,.cell-row>span{justify-self:start;text-align:left;min-width:0}
+  .cell-browser-head>span:nth-child(3),.cell-row>span:nth-child(3){justify-self:center;text-align:center}
+  .cell-row:last-child{border-bottom:0}
+  .cell-row:hover{background:var(--surface)}
+  .cell-row.selected{background:var(--blue-2)}
+  .cell-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--line);flex-shrink:0}
+  .cell-id{font-family:inherit;font-size:var(--fs-note);color:var(--text-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cell-val{font-family:inherit;font-size:var(--fs-note);color:var(--text)}
+  .cell-badge{font-size:var(--fs-note);font-weight:600;padding:2px 7px;border-radius:3px;letter-spacing:.04em;color:var(--text)}
+  :root[data-theme="dark"] .cell-badge{background:var(--line-2)}
+  .cell-table-scroll{max-height:calc(var(--cell-row-height) * 6);overflow-y:auto;scrollbar-gutter:stable}
+  .loading-row{padding:20px 16px;text-align:center;color:var(--text-soft);font-size:var(--fs-body)}
+  .policy-modal[hidden]{display:none}
+  .policy-modal{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.34)}
+  .policy-dialog{width:min(100%,440px);background:var(--panel);border:1px solid color-mix(in srgb,var(--line) 70%,var(--accent-blue));box-shadow:0 18px 44px rgba(0,0,0,.18);padding:22px}
+  .policy-dialog h2{margin:0 0 10px;font-size:var(--fs-title);line-height:1.2;color:var(--text-strong)}
+  .policy-dialog p{margin:0;color:var(--text);font-size:var(--fs-body);line-height:1.55}
+  .policy-dialog p + p{margin-top:8px}
+  .policy-contact{font-weight:600;color:var(--text-strong)}
+  .policy-reference{margin-top:10px;font-size:var(--fs-note);color:var(--text-soft)}
+  .policy-reference a{color:var(--text-strong);text-decoration:underline;text-underline-offset:3px}
+  .policy-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+  /* spinner */
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .spinner{width:16px;height:16px;border:2px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin .6s linear infinite;display:inline-block}
+  @media(max-width:960px){
+    nav.top .row{display:flex;height:auto;min-height:68px;flex-wrap:wrap;gap:12px;padding-top:12px;padding-bottom:12px}
+    .nav-right{margin-left:auto;align-self:center}
+    .nav-links{order:3;width:100%;flex-wrap:wrap;justify-content:space-between;gap:8px 18px}
+    .page-head{padding:20px 0 12px}
+    .filter-row{grid-template-columns:minmax(96px,130px) minmax(0,1fr) auto;gap:12px}
+    #cell-browser{
+      --cell-browser-fixed-width:392px;
+      --cell-browser-gap:clamp(6px,calc((100% - var(--cell-browser-fixed-width)) / 5),16px);
+      --cell-browser-columns:24px 210px 48px 16px 50px 44px;
+    }
+    .cell-browser-head > span:nth-child(n+7),
+    .cell-row > span:nth-child(n+7){display:none}
+    .footer-row{gap:10px}
+    .footer-logos{gap:9px;flex:0 1 auto}
+    .footer-logo.soda{width:174px;max-height:29px}
+    .footer-logo.ntu{width:78px;max-height:29px}
+    .footer-license{line-height:1.25;text-align:center;white-space:normal;flex:0 0 auto}
+    .footer-license-line{display:block}
+    .footer-license-line + .footer-license-line::before{content:""}
+  }
+  @media(max-width:520px){
+    .filter-row{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+    .filter-row>.label{grid-column:1}
+    .filter-row>.chips,.filter-row>.slider-wrap{grid-column:1}
+    .filter-row>.reset{grid-column:2;grid-row:1 / span 2}
+    .footer-row{flex-wrap:wrap}
+    .policy-actions{justify-content:stretch;flex-direction:column-reverse}
+    .policy-actions .btn{justify-content:center}
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap row">
+    <a class="brand" href="index.html">
+      <img class="brand-logo" src="image/soda_logo.png" alt="SODA Battery">
+    </a>
+    <div class="nav-links">
+      <a href="index.html"><strong aria-hidden="true">←</strong> Home</a>
+      <a href="#cell-filter">Cell Filter</a>
+      <a href="#cell-browser">Cell Browser</a>
+      <a class="active" href="#plot-panel">Data Plot</a>
+    </div>
+    <div class="nav-right">
+      <span id="api-badge" class="api-badge loading">Checking…</span>
+      <span class="theme-toggle">☀</span>
+    </div>
+  </div>
+</nav>
+
+
+<section class="page-head">
+  <div class="wrap">
+    <h1>Explore Battery Aging Data</h1>
+    <p>Filter cells by chemistry, temperature, C-rate, format, and protocol. Compare cycle life and time series data.</p>
+  </div>
+</section>
+
+<div class="wrap" style="padding-bottom:24px">
+
+  <!-- FILTERS -->
+  <div class="panel" id="cell-filter">
+    <div class="panel-head">
+      Cell Filter
+    </div>
+    <div class="panel-body" id="filter-body">
+      <div class="filter-row"><div class="label" style="opacity:.4">Loading…</div><div class="chips"></div></div>
+    </div>
+    <div class="actions-row filter-actions" id="filter-actions"></div>
+  </div>
+
+  <!-- CELL BROWSER -->
+  <div class="panel" id="cell-browser">
+    <div class="panel-head">
+      Cell Browser
+      <span id="match-note" class="mono" style="font-size:var(--fs-note);color:var(--text-soft);font-weight:400">fetching…</span>
+    </div>
+    <div class="cell-browser-head">
+      <span></span><span>CELL ID</span><span>CHEM</span><span class="cell-spacer" aria-hidden="true"></span><span>TEMP</span><span>CHG</span><span>DIS</span><span>CYCLES</span><span>EOL</span>
+    </div>
+    <div class="cell-table-scroll" id="cell-table">
+      <div class="loading-row"><span class="spinner"></span></div>
+    </div>
+    <div style="padding:10px 16px 14px;display:flex;gap:10px;border-top:1px solid var(--line-2)">
+      <button class="btn primary" id="select-all">Select All Cells</button>
+      <button class="btn" id="clear-selection">Clear Selection</button>
+    </div>
+  </div>
+
+  <!-- PLOT PANEL -->
+  <div class="panel" id="plot-panel">
+    <div class="tabs" id="tabs-main">
+      <button class="tab active" data-tab="cycle">Cycle Life</button>
+      <button class="tab" data-tab="ts">Time Series</button>
+      <button class="tab" data-tab="imp">Impedance</button>
+    </div>
+
+    <!-- Cycle Life controls -->
+    <div class="cycle-controls" id="cycle-controls">
+      <div class="cycle-track-group" aria-label="Cycle life profile">
+        <span class="ts-track-label">Profiles</span>
+        <div class="track-buttons" id="cycle-profile-buttons"></div>
+      </div>
+    </div>
+
+    <!-- ts cycle controls -->
+    <div class="ts-controls" id="ts-controls" style="display:none">
+      <div class="cycle-range-control">
+        <span class="control-label">Cycles</span>
+        <div class="cycle-range" aria-label="Cycle range">
+          <input type="range" id="ts-cycle-start" value="1" min="1" max="2000" step="1" aria-label="Start cycle">
+          <input type="range" id="ts-cycle-end" value="1" min="1" max="2000" step="1" aria-label="End cycle">
+        </div>
+        <span class="cycle-range-value" id="ts-cycle-label">1-1</span>
+      </div>
+      <div class="ts-track-group" aria-label="Time series profile">
+        <span class="ts-track-label">Profiles</span>
+        <div class="ts-track-buttons track-buttons" id="ts-profile-buttons"></div>
+      </div>
+      <div class="ts-track-group" aria-label="Time series track">
+        <span class="ts-track-label">Curves</span>
+        <div class="ts-track-buttons track-buttons" id="ts-curve-buttons"></div>
+      </div>
+    </div>
+
+    <div class="explorer-chart-wrap" id="explorer-chart-wrap">
+      <div class="chart-head">
+        <div>
+          <h3 id="chart-title">Capacity Retention</h3>
+        </div>
+      </div>
+      <div id="chart-canvas" role="img" aria-label="Selected battery data plot"></div>
+      <div class="legend-box" id="legend-box"></div>
+    </div>
+
+    <!-- Impedance placeholder -->
+    <div id="imp-wrap" style="display:none;padding:48px 24px;text-align:center;color:var(--text-soft)">
+      <div style="font-size:var(--fs-title);margin-bottom:12px">◎</div>
+      <div style="font-weight:600;font-size:var(--fs-title);color:var(--text-strong)">EIS data not available in this dataset</div>
+      <div style="font-size:var(--fs-body);margin-top:6px;color:var(--text)">Impedance data is not available for the current dataset.</div>
+    </div>
+  </div>
+
+</div>
+
+<footer style="padding:12px 0;border-top:1px solid var(--line);background:var(--bg)">
+  <div class="wrap footer-row">
+    <div class="footer-logos" aria-label="NTU and SODA">
+      <img class="footer-logo ntu" src="image/ntu_logo.png" alt="Nanyang Technological University">
+      <img class="footer-logo soda" src="image/soda_logo.png" alt="SODA Battery">
+    </div>
+    <span class="footer-license"><span class="footer-license-line">© 2026 SODA Group @ NTU Singapore.</span><span class="footer-license-line">All rights reserved.</span></span>
+  </div>
+</footer>
+
+<div class="policy-modal" id="data-policy-dialog" role="dialog" aria-modal="true" aria-labelledby="data-policy-title" hidden>
+  <div class="policy-dialog">
+    <h2 id="data-policy-title">NTU Research Data Policy</h2>
+    <p>Access to the selected battery research data is subject to the NTU Research Data Policy and any applicable legal, ethical, confidentiality, sponsor, collaborator, or data-management restrictions.</p>
+    <p>Unless otherwise specified, NTU owns research data generated under its auspices. The data may be used only for non-commercial research and educational purposes, with proper attribution to NTU and SODA Research Group.</p>
+    <p>The data made available through this interface have been processed to reduced sampling rates and numerical precision. Requests for original-resolution data, commercial-use authorization, redistribution, or any use outside the permitted scope should be directed to <strong class="policy-contact">Dr. Xu Yan</strong> for review under applicable NTU policies and approval procedures.</p>
+    <p>By continuing, you acknowledge these conditions and agree not to redistribute, publish, transfer, sublicense, or use the data or derived results for commercial purposes without prior written permission from the appropriate NTU authority.</p>
+    <div class="policy-reference">Reference: <a href="https://www.ntu.edu.sg/research/ntu-research-data-policy" target="_blank" rel="noopener">NTU Research Data Policy</a></div>
+    <div class="policy-actions">
+      <button class="btn" type="button" id="data-policy-cancel">Cancel</button>
+      <button class="btn primary" type="button" id="data-policy-accept">I Understand</button>
+    </div>
+  </div>
+</div>
+
+<script src="site.js"></script>
+<script id="echarts-script" src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js" async></script>
+<script>
+/* =====================================================================
+   SODA Battery — Data Explorer
+   ===================================================================== */
+
+SodaSite.init();
+
+const COLORS = SodaSite.constants.COLORS;
+const { CHART_LINE_OPACITY } = SodaSite.constants;
+const API_ENDPOINTS = Object.freeze({
+  cells: '/api/cells',
+  cycleSeriesOptions: '/api/cycle-series/options',
+  cycleSeries: '/api/cycle-series',
+  timeSeriesOptions: '/api/time-series/options',
+  timeSeries: '/api/time-series'
+});
+const DATA_POLICY_ACK_KEY = 'soda-ntu-data-policy-ack';
+const MARKERS = ['circle','triangle','diamond','rect','roundRect','pin','arrow'];
+const CYCLE_COLOR_STOPS = [
+  { pos: 0, color: '#2563eb' },
+  { pos: .38, color: '#16a34a' },
+  { pos: .68, color: '#eab308' },
+  { pos: 1, color: '#e11d48' },
+];
+const {
+  axisLabel,
+  cssVar,
+  limitSeriesForDisplay,
+  lineSeriesOption,
+  normalChartFontSize,
+  scrollLegendOption,
+  seriesExtent,
+} = SodaSite.chart;
+const esc = SodaSite.esc;
+const apiFetch = SodaSite.apiFetch;
+
+// -----------------------------------------------------------------------
+// State
+// -----------------------------------------------------------------------
+const S = {
+  apiOk: false,
+  metrics: [],
+  cycleLifeOptionsLoaded: false,
+  timeSeriesProfiles: [],
+  timeSeriesCurves: [],
+  timeSeriesOptionsKey: '',
+  allCells: [],
+  selected: [],      // CellInfo objects
+  seriesCache: {},   // key `${cellId}__${metric}` → {cycles, values}
+  tsCache: {},       // key `${cellId}__${profile}__${startCycle}-${endCycle}` → raw payload
+  currentMetric: 'charge-capacity',
+  currentTab: 'cycle',
+  currentTimeSeriesProfile: '',
+  currentTimeSeriesCurve: '',
+  tsCycleStart: 1,
+  tsCycleEnd: 1,
+  tsRangeInitialized: false,
+  tsDefaultToFirstCycleOnNextOptions: false,
+};
+
+function endpointWithParams(endpoint, params) {
+  const query = params?.toString();
+  return query ? `${endpoint}?${query}` : endpoint;
+}
+
+const chartEl = document.getElementById('chart-canvas');
+let lineChart = null;
+let chartPayload = { type: 'empty', message: 'Select cells to compare', showLabels: false, offlineGrid: false };
+let dataPolicyPrompt = null;
+
+function dataPolicyAccepted() {
+  try {
+    return sessionStorage.getItem(DATA_POLICY_ACK_KEY) === 'accepted';
+  } catch (error) {
+    return false;
+  }
+}
+
+function rememberDataPolicyAccepted() {
+  try {
+    sessionStorage.setItem(DATA_POLICY_ACK_KEY, 'accepted');
+  } catch (error) {
+    // Session storage may be unavailable in some local-file browser modes.
+  }
+}
+
+function requireDataPolicyAcknowledgement() {
+  if (dataPolicyAccepted()) return Promise.resolve(true);
+  if (dataPolicyPrompt) return dataPolicyPrompt;
+
+  const dialog = document.getElementById('data-policy-dialog');
+  const acceptButton = document.getElementById('data-policy-accept');
+  const cancelButton = document.getElementById('data-policy-cancel');
+  if (!dialog || !acceptButton || !cancelButton) return Promise.resolve(true);
+
+  dataPolicyPrompt = new Promise(resolve => {
+    let previousFocus = document.activeElement;
+
+    function finish(accepted) {
+      dialog.hidden = true;
+      acceptButton.removeEventListener('click', accept);
+      cancelButton.removeEventListener('click', cancel);
+      document.removeEventListener('keydown', onKeydown);
+      if (accepted) rememberDataPolicyAccepted();
+      if (previousFocus?.focus) previousFocus.focus();
+      dataPolicyPrompt = null;
+      resolve(accepted);
+    }
+
+    function accept() {
+      finish(true);
+    }
+
+    function cancel() {
+      finish(false);
+    }
+
+    function onKeydown(event) {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        cancel();
+      }
+    }
+
+    dialog.hidden = false;
+    acceptButton.addEventListener('click', accept);
+    cancelButton.addEventListener('click', cancel);
+    document.addEventListener('keydown', onKeydown);
+    acceptButton.focus();
+  });
+
+  return dataPolicyPrompt;
+}
+
+function initLineChart() {
+  if (lineChart || !chartEl || !window.echarts) return lineChart;
+  chartEl.textContent = '';
+  chartEl.style.removeProperty('display');
+  chartEl.style.removeProperty('align-items');
+  chartEl.style.removeProperty('justify-content');
+  chartEl.style.removeProperty('color');
+  lineChart = echarts.init(chartEl, null, { renderer: 'canvas' });
+  SodaSite.chart.bindChartHoverRestore(lineChart);
+  return lineChart;
+}
+
+function hexToRgb(hex) {
+  const normalized = String(hex).replace('#', '');
+  const value = parseInt(normalized.length === 3
+    ? normalized.split('').map(ch => ch + ch).join('')
+    : normalized, 16);
+  return {
+    r: (value >> 16) & 255,
+    g: (value >> 8) & 255,
+    b: value & 255
+  };
+}
+
+function rgbToHex({ r, g, b }) {
+  return '#' + [r, g, b].map(value => {
+    const hex = Math.round(value).toString(16).padStart(2, '0');
+    return hex;
+  }).join('');
+}
+
+function mixColor(start, end, amount) {
+  const a = hexToRgb(start);
+  const b = hexToRgb(end);
+  return rgbToHex({
+    r: a.r + (b.r - a.r) * amount,
+    g: a.g + (b.g - a.g) * amount,
+    b: a.b + (b.b - a.b) * amount
+  });
+}
+
+function cycleColor(cycle, maxCycle) {
+  const denominator = Math.max(1, maxCycle - 1);
+  const ratio = Math.max(0, Math.min(1, (Number(cycle) - 1) / denominator));
+  for (let i = 1; i < CYCLE_COLOR_STOPS.length; i += 1) {
+    const prev = CYCLE_COLOR_STOPS[i - 1];
+    const next = CYCLE_COLOR_STOPS[i];
+    if (ratio <= next.pos) {
+      const local = (ratio - prev.pos) / Math.max(.0001, next.pos - prev.pos);
+      return mixColor(prev.color, next.color, local);
+    }
+  }
+  return CYCLE_COLOR_STOPS[CYCLE_COLOR_STOPS.length - 1].color;
+}
+
+function chartBaseOption({ xAxisLabel, yAxisLabel, xmin = 0, xmax = 1, ymin = 0, ymax = 1, message = '', showLabels = true }) {
+  return SodaSite.chart.chartBaseOption({
+    xAxisLabel,
+    yAxisLabel,
+    xmin,
+    xmax,
+    ymin,
+    ymax,
+    message,
+    showLabels,
+    colors: COLORS,
+  });
+}
+
+function setChartOption(option, fallbackText = '') {
+  if (!initLineChart()) {
+    chartEl.textContent = fallbackText || 'Chart library unavailable.';
+    chartEl.style.display = 'flex';
+    chartEl.style.alignItems = 'center';
+    chartEl.style.justifyContent = 'center';
+    chartEl.style.color = 'var(--text-soft)';
+    return;
+  }
+  lineChart.setOption(option, true);
+}
+
+function setExplorerChartOfflineGrid(active) {
+  chartEl.classList.toggle('chart-offline-grid', active);
+}
+
+function renderStoredChartPayload() {
+  if (chartPayload.type === 'series') {
+    renderLineChart(chartPayload.series, true);
+  } else {
+    drawEmptyChart(chartPayload.message, true, chartPayload.showLabels !== false, chartPayload.offlineGrid === true);
+  }
+}
+
+if (chartEl) {
+  const chartResize = new ResizeObserver(() => {
+    if (initLineChart()) lineChart.resize();
+    renderStoredChartPayload();
+  });
+  chartResize.observe(chartEl);
+  new MutationObserver(renderStoredChartPayload)
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  document.getElementById('echarts-script')?.addEventListener('load', () => {
+    if (initLineChart()) renderStoredChartPayload();
+  });
+}
+
+function buildQS() {
+  const p = new URLSearchParams();
+  const fb = document.getElementById('filter-body');
+  if (!fb) return p;
+  fb.querySelectorAll('.chips[data-api-param]').forEach(group => {
+    const param = group.dataset.apiParam;
+    const vals = [...group.querySelectorAll('.chip.active')].map(c => c.dataset.v);
+    if (vals.length) p.set(param, vals.join(','));
+  });
+  return p;
+}
+
+function activeTimeSeriesCurve() {
+  return S.timeSeriesCurves.find(curve => curve.key === S.currentTimeSeriesCurve) || null;
+}
+
+function formatPlotTitle(label) {
+  return String(label || '')
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      if (word.toLowerCase() === 'vs.' || word.toLowerCase() === 'vs') return 'vs.';
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
+
+function updateChartTitle() {
+  const title = document.getElementById('chart-title');
+  if (!title) return;
+  if (S.currentTab === 'ts') {
+    title.textContent = activeTimeSeriesCurve()?.title || 'Time Series';
+    return;
+  }
+  const activeMeta = S.metrics.find(m => m.key === S.currentMetric);
+  title.textContent = formatPlotTitle(activeMeta?.label || 'Capacity retention');
+}
+
+function clampCycleRange() {
+  const startInput = document.getElementById('ts-cycle-start');
+  const endInput = document.getElementById('ts-cycle-end');
+  const label = document.getElementById('ts-cycle-label');
+  if (!startInput || !endInput || !label) return;
+  let start = parseInt(startInput.value, 10) || 1;
+  let end = parseInt(endInput.value, 10) || 1;
+  const min = parseInt(startInput.min, 10) || 1;
+  const max = parseInt(startInput.max, 10) || 1;
+  start = Math.max(min, Math.min(max, start));
+  end = Math.max(min, Math.min(max, end));
+  if (start > end) [start, end] = [end, start];
+  S.tsCycleStart = start;
+  S.tsCycleEnd = end;
+  startInput.value = start;
+  endInput.value = end;
+  label.textContent = start === end ? String(start) : `${start}-${end}`;
+  const denominator = Math.max(1, max - min);
+  const startRatio = (start - min) / denominator;
+  const endRatio = (end - min) / denominator;
+  const cycleRange = startInput.closest('.cycle-range');
+  if (cycleRange) {
+    cycleRange.classList.remove('no-data');
+    cycleRange.style.setProperty('--range-start', startRatio);
+    cycleRange.style.setProperty('--range-end', endRatio);
+    cycleRange.style.setProperty('--range-start-pct', `${startRatio * 100}%`);
+    cycleRange.style.setProperty('--range-end-pct', `${endRatio * 100}%`);
+    cycleRange.style.setProperty('--range-start-color', cycleColor(start, max));
+    cycleRange.style.setProperty('--range-end-color', cycleColor(end, max));
+    startInput.style.color = cycleColor(start, max);
+    endInput.style.color = cycleColor(end, max);
+  }
+}
+
+function setCycleRangeBounds(minCycle, maxCycle, options = {}) {
+  const startInput = document.getElementById('ts-cycle-start');
+  const endInput = document.getElementById('ts-cycle-end');
+  const label = document.getElementById('ts-cycle-label');
+  if (!startInput || !endInput || !label) return;
+  const cycleRange = startInput.closest('.cycle-range');
+  if (!Number.isFinite(minCycle) || !Number.isFinite(maxCycle) || minCycle > maxCycle) {
+    startInput.min = 1;
+    startInput.max = 1;
+    endInput.min = 1;
+    endInput.max = 1;
+    startInput.value = 1;
+    endInput.value = 1;
+    S.tsCycleStart = 1;
+    S.tsCycleEnd = 1;
+    label.textContent = 'No data';
+    if (cycleRange) {
+      cycleRange.classList.add('no-data');
+      cycleRange.style.setProperty('--range-start', 0);
+      cycleRange.style.setProperty('--range-end', 1);
+      cycleRange.style.setProperty('--range-start-pct', '0%');
+      cycleRange.style.setProperty('--range-end-pct', '0%');
+      cycleRange.style.setProperty('--range-start-color', cssVar('--text-soft', '#666666'));
+      cycleRange.style.setProperty('--range-end-color', cssVar('--text-soft', '#666666'));
+    }
+    startInput.style.color = cssVar('--text-soft', '#666666');
+    endInput.style.color = cssVar('--text-soft', '#666666');
+    return;
+  }
+  if (cycleRange) cycleRange.classList.remove('no-data');
+  startInput.min = minCycle;
+  startInput.max = maxCycle;
+  endInput.min = minCycle;
+  endInput.max = maxCycle;
+  if (options.defaultToFirstCycle) {
+    const defaultCycle = minCycle <= 1 && maxCycle >= 1 ? 1 : minCycle;
+    startInput.value = defaultCycle;
+    endInput.value = defaultCycle;
+    S.tsRangeInitialized = true;
+  } else if (!S.tsRangeInitialized || S.tsCycleStart < minCycle || S.tsCycleEnd > maxCycle) {
+    startInput.value = minCycle;
+    endInput.value = maxCycle;
+    S.tsRangeInitialized = true;
+  }
+  clampCycleRange();
+}
+
+function currentCycleColorMax() {
+  const endInput = document.getElementById('ts-cycle-end');
+  return parseInt(endInput?.max, 10) || S.tsCycleEnd || 1;
+}
+
+function groupRawSeriesByCycle(raw, track) {
+  const grouped = new Map();
+  if (!raw.cycles?.length && S.tsCycleStart !== S.tsCycleEnd) {
+    return [];
+  }
+  const cycles = raw.cycles?.length ? raw.cycles : (raw.time || []).map(() => raw.cycle || S.tsCycleStart);
+  const time = raw.time || [];
+  const values = raw[track] || [];
+  cycles.forEach((cycle, index) => {
+    if (!grouped.has(cycle)) grouped.set(cycle, {x: [], y: []});
+    const group = grouped.get(cycle);
+    group.x.push(time[index]);
+    group.y.push(values[index]);
+  });
+  return [...grouped.entries()].map(([cycle, data]) => ({cycle, data}));
+}
+
+function renderActivePlot() {
+  if (S.currentTab === 'cycle') plotSelected();
+  else if (S.currentTab === 'ts') plotTimeSeries();
+}
+
+function drawNoDataSelectedChart() {
+  if (S.currentTab === 'ts') {
+    S.timeSeriesProfiles = [];
+    S.timeSeriesCurves = [];
+    S.timeSeriesOptionsKey = '';
+    renderTimeSeriesControls();
+    setCycleRangeBounds(null, null);
+  }
+  const message = S.currentTab === 'ts'
+    ? 'Select cells to view time series'
+    : 'Select cells to compare';
+  drawEmptyChart(message, false, false, false);
+}
+
+// -----------------------------------------------------------------------
+// Filter UI
+// -----------------------------------------------------------------------
+const FILTER_DEFS = [
+  { label: 'Chemistry',        facetKey: 'chemistry',      apiParam: 'chemistry',      fmt: v => v },
+  { label: 'Format',           facetKey: 'format',         apiParam: 'format',         fmt: v => v },
+  { label: 'Manufacturer',     facetKey: 'manufacturer',   apiParam: 'manufacturer',   fmt: v => v },
+  { label: 'Temperature',      facetKey: 'temperature_c',  apiParam: 'temperature',    fmt: v => v + '°C' },
+  { label: 'Charge C-rate',    facetKey: 'charge_rate',    apiParam: 'charge_rate',    fmt: v => v },
+  { label: 'Discharge C-rate', facetKey: 'discharge_rate', apiParam: 'discharge_rate', fmt: v => v },
+];
+
+function buildFilterUI(facets) {
+  const body = document.getElementById('filter-body');
+  const actions = document.getElementById('filter-actions');
+  let html = '';
+  FILTER_DEFS.forEach(def => {
+    const vals = (facets[def.facetKey] || []).slice();
+    if (!vals.length) return;
+    const chips = vals.map(v =>
+      `<button class="chip" data-v="${esc(v)}">${esc(def.fmt(v))}</button>`
+    ).join('');
+    html += `
+      <div class="filter-row">
+        <div class="label">${def.label}</div>
+        <div class="chips" data-filter="${def.facetKey}" data-api-param="${def.apiParam}">${chips}</div>
+        <button class="reset">Reset</button>
+      </div>`;
+  });
+  body.innerHTML = html;
+  actions.innerHTML = `
+    <button class="btn primary" id="select-all-f">Select All Filters</button>
+    <button class="btn" id="clear-filter">Clear Selection</button>`;
+  wireFilters();
+}
+
+function buildOfflineFilterUI() {
+  const body = document.getElementById('filter-body');
+  const actions = document.getElementById('filter-actions');
+  body.innerHTML = '<div class="loading-row">Server Offline. Please try again later.</div>';
+  actions.innerHTML = '';
+}
+
+function wireFilters() {
+  document.querySelectorAll('#filter-body .chips').forEach(g => {
+    g.addEventListener('click', e => {
+      if (e.target.classList.contains('chip')) {
+        e.target.classList.toggle('active');
+        fetchCells();
+      }
+    });
+  });
+  document.querySelectorAll('#filter-body .reset').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const row = e.target.closest('.filter-row');
+      row.querySelectorAll('.chip.active').forEach(c => c.classList.remove('active'));
+      fetchCells();
+    });
+  });
+  const selectAll = document.getElementById('select-all-f');
+  if (selectAll) selectAll.addEventListener('click', selectAllFilterOptions);
+  const clearFilter = document.getElementById('clear-filter');
+  if (clearFilter) clearFilter.addEventListener('click', clearFilters);
+}
+
+// -----------------------------------------------------------------------
+// Chart option controls
+// -----------------------------------------------------------------------
+function buildOptionButtons({ id, options, activeKey, dataAttr, emptyLabel = 'No data', onSelect }) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  if (!options.length) {
+    el.innerHTML = `<button class="track-btn disabled" type="button" disabled>${esc(emptyLabel)}</button>`;
+    return;
+  }
+  el.innerHTML = options.map(option =>
+    `<button class="track-btn${option.key === activeKey ? ' active' : ''}" data-${dataAttr}="${esc(option.key)}">${esc(option.label)}</button>`
+  ).join('');
+  el.querySelectorAll('.track-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      el.querySelectorAll('.track-btn').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      onSelect(button.dataset[dataAttr]);
+    });
+  });
+}
+
+function renderCycleLifeControls() {
+  buildOptionButtons({
+    id: 'cycle-profile-buttons',
+    options: S.metrics,
+    activeKey: S.currentMetric,
+    dataAttr: 'profile',
+    onSelect(key) {
+      S.currentMetric = key;
+      updateChartTitle();
+      if (S.currentTab === 'cycle') plotSelected();
+    },
+  });
+  updateChartTitle();
+}
+
+function buildTimeSeriesButtons(kind, options, activeKey) {
+  const id = kind === 'profile' ? 'ts-profile-buttons' : 'ts-curve-buttons';
+  const dataAttr = kind === 'profile' ? 'profile' : 'curve';
+  buildOptionButtons({
+    id,
+    options,
+    activeKey,
+    dataAttr,
+    onSelect(key) {
+      if (kind === 'profile') {
+        S.currentTimeSeriesProfile = key;
+        S.tsCache = {};
+      } else {
+        S.currentTimeSeriesCurve = key;
+      }
+      updateChartTitle();
+      if (S.currentTab === 'ts') plotTimeSeries();
+    },
+  });
+}
+
+function renderTimeSeriesControls() {
+  buildTimeSeriesButtons('profile', S.timeSeriesProfiles, S.currentTimeSeriesProfile);
+  buildTimeSeriesButtons('curve', S.timeSeriesCurves, S.currentTimeSeriesCurve);
+}
+
+async function loadCycleSeriesOptions() {
+  let options = null;
+  if (S.apiOk) {
+    options = await apiFetch(API_ENDPOINTS.cycleSeriesOptions, null);
+  }
+  S.metrics = options?.profiles || [];
+  if (!S.metrics.some(metric => metric.key === S.currentMetric)) {
+    const defaultProfile = options?.default_profile;
+    S.currentMetric = S.metrics.some(metric => metric.key === defaultProfile)
+      ? defaultProfile
+      : S.metrics[0]?.key || 'charge-capacity';
+  }
+  S.cycleLifeOptionsLoaded = Boolean(options);
+  renderCycleLifeControls();
+}
+
+// -----------------------------------------------------------------------
+// Cell browser
+// -----------------------------------------------------------------------
+async function fetchCells() {
+  const table = document.getElementById('cell-table');
+  table.innerHTML = '<div class="loading-row"><span class="spinner"></span></div>';
+  document.getElementById('match-note').textContent = 'fetching…';
+
+  let cells;
+  if (S.apiOk) {
+    const qs = buildQS();
+    const data = await apiFetch(endpointWithParams(API_ENDPOINTS.cells, qs), null);
+    if (data) {
+      cells = data.cells || [];
+    } else {
+      S.apiOk = false;
+      cells = [];
+    }
+  } else {
+    cells = [];
+  }
+
+  S.allCells = cells;
+  const visibleIds = new Set(cells.map(c => c.id));
+  S.selected = S.selected.filter(c => visibleIds.has(c.id));
+  document.getElementById('match-note').textContent = cells.length + ' matching';
+  updateSelectionUI();
+  renderCellTable(cells);
+  renderActivePlot();
+}
+
+function renderCellTable(cells) {
+  const table = document.getElementById('cell-table');
+  if (!S.apiOk) {
+    table.innerHTML = '<div class="loading-row">Server Offline. Please try again later.</div>';
+    return;
+  }
+  if (!cells.length) {
+    table.innerHTML = '<div class="loading-row">No cells match the current filters.</div>';
+    return;
+  }
+  table.innerHTML = cells.map(c => {
+    const selIdx = S.selected.findIndex(s => s.id === c.id);
+    const isSel = selIdx >= 0;
+    const color = isSel ? COLORS[selIdx % COLORS.length] : '';
+    return `<div class="cell-row${isSel ? ' selected' : ''}" data-id="${esc(c.id)}">
+      <span class="cell-dot" style="${color ? 'background:'+color+';border-color:'+color : ''}"></span>
+      <span class="cell-id" title="${esc(c.id)}">${esc(c.id)}</span>
+      <span><span class="cell-badge">${esc(c.chemistry||'—')}</span></span>
+      <span class="cell-spacer" aria-hidden="true"></span>
+      <span class="cell-val">${esc(c.temperature_c != null ? c.temperature_c+'°C' : '—')}</span>
+      <span class="cell-val">${esc(c.charge_rate||'—')}</span>
+      <span class="cell-val">${esc(c.discharge_rate||'—')}</span>
+      <span class="cell-val">${esc(c.cycles||'—')}</span>
+      <span class="cell-val">${c.end_capacity_pct ? c.end_capacity_pct.toFixed(1)+'%' : '—'}</span>
+    </div>`;
+  }).join('');
+
+  table.querySelectorAll('.cell-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const cell = cells.find(c => c.id === row.dataset.id);
+      if (cell) toggleSelect(cell);
+    });
+  });
+}
+
+// -----------------------------------------------------------------------
+// Cell selection
+// -----------------------------------------------------------------------
+function toggleSelect(cell) {
+  const idx = S.selected.findIndex(c => c.id === cell.id);
+  if (idx >= 0) {
+    S.selected.splice(idx, 1);
+  } else {
+    if (!S.selected.length) S.tsDefaultToFirstCycleOnNextOptions = true;
+    S.selected.push(cell);
+  }
+  updateSelectionUI();
+  renderCellTable(S.allCells);
+  renderActivePlot();
+}
+
+function selectAllVisible() {
+  S.selected = S.allCells.slice();
+  updateSelectionUI();
+  renderCellTable(S.allCells);
+  renderActivePlot();
+}
+
+function clearSelection() {
+  S.selected = [];
+  updateSelectionUI();
+  renderCellTable(S.allCells);
+  renderActivePlot();
+}
+
+function clearFilters() {
+  document.querySelectorAll('#filter-body .chip.active').forEach(c => c.classList.remove('active'));
+  fetchCells();
+}
+
+function selectAllFilterOptions() {
+  document.querySelectorAll('#filter-body .chip').forEach(c => c.classList.add('active'));
+  fetchCells();
+}
+
+function updateSelectionUI() {
+  // Selection state is reflected directly by the cell table rows.
+  if (S.currentTab === 'ts') loadTimeSeriesOptions();
+}
+
+function selectedTimeSeriesOptionKey() {
+  return S.selected.map(cell => cell.id).sort().join('|');
+}
+
+async function loadTimeSeriesOptions() {
+  if (!S.apiOk || !S.selected.length) {
+    S.timeSeriesProfiles = [];
+    S.timeSeriesCurves = [];
+    S.timeSeriesOptionsKey = '';
+    renderTimeSeriesControls();
+    setCycleRangeBounds(null, null);
+    return null;
+  }
+  const optionKey = selectedTimeSeriesOptionKey();
+  if (S.timeSeriesOptionsKey === optionKey) {
+    return {
+      profiles: S.timeSeriesProfiles,
+      curves: S.timeSeriesCurves,
+      cycle_min: parseInt(document.getElementById('ts-cycle-start')?.min, 10) || null,
+      cycle_max: parseInt(document.getElementById('ts-cycle-start')?.max, 10) || null
+    };
+  }
+  if (!await requireDataPolicyAcknowledgement()) {
+    return null;
+  }
+  const params = new URLSearchParams();
+  S.selected.forEach(cell => params.append('cell_id', cell.id));
+  const data = await apiFetch(endpointWithParams(API_ENDPOINTS.timeSeriesOptions, params), null);
+  S.timeSeriesOptionsKey = optionKey;
+  S.timeSeriesProfiles = data?.profiles || [];
+  S.timeSeriesCurves = data?.curves || [];
+  if (!S.timeSeriesProfiles.some(profile => profile.key === S.currentTimeSeriesProfile)) {
+    S.currentTimeSeriesProfile = S.timeSeriesProfiles[0]?.key || '';
+    S.tsCache = {};
+  }
+  if (!S.timeSeriesCurves.some(curve => curve.key === S.currentTimeSeriesCurve)) {
+    S.currentTimeSeriesCurve = S.timeSeriesCurves[0]?.key || '';
+  }
+  renderTimeSeriesControls();
+  const defaultToFirstCycle = S.tsDefaultToFirstCycleOnNextOptions;
+  S.tsDefaultToFirstCycleOnNextOptions = false;
+  setCycleRangeBounds(data?.cycle_min, data?.cycle_max, { defaultToFirstCycle });
+  return data;
+}
+
+// -----------------------------------------------------------------------
+// Cycle Life chart
+// -----------------------------------------------------------------------
+async function plotSelected() {
+  if (!S.apiOk) {
+    drawEmptyChart('Server Offline. Please try again later.', false, false, true);
+    return;
+  }
+  if (!S.selected.length) {
+    drawNoDataSelectedChart();
+    return;
+  }
+  if (!await requireDataPolicyAcknowledgement()) {
+    drawEmptyChart('Data access acknowledgement required.', false, false, false);
+    return;
+  }
+  const missing = S.selected.filter(c => !S.seriesCache[`${c.id}__${S.currentMetric}`]);
+  if (missing.length) {
+    const params = new URLSearchParams({ metric: S.currentMetric });
+    missing.forEach(cell => params.append('cell_id', cell.id));
+    const payload = await apiFetch(endpointWithParams(API_ENDPOINTS.cycleSeries, params), null);
+    (payload?.series || []).forEach(item => {
+      if (item?.cell?.id && item.data) {
+        S.seriesCache[`${item.cell.id}__${S.currentMetric}`] = item.data;
+      }
+    });
+  }
+  const series = S.selected.map((c, i) => {
+    const data = S.seriesCache[`${c.id}__${S.currentMetric}`];
+    return data ? {cell: c, color: COLORS[i%COLORS.length], data} : null;
+  });
+  renderLineChart(series.filter(Boolean));
+}
+
+function renderLineChart(series, fromStoredPayload = false) {
+  const displaySeries = limitSeriesForDisplay(series);
+  if (!fromStoredPayload) chartPayload = { type: 'series', series };
+  setExplorerChartOfflineGrid(false);
+  if (!displaySeries.length) {
+    drawEmptyChart('No plottable data available.', fromStoredPayload, false);
+    return;
+  }
+  const activeMeta = S.metrics.find(m => m.key === S.currentMetric) || {};
+  const xAxisLabel = S.currentTab === 'ts' ? 'Time (s)' : 'Cycle number';
+  const yAxisLabel = S.currentTab === 'ts'
+    ? axisLabel(activeTimeSeriesCurve()?.axis_label || 'Value', activeTimeSeriesCurve()?.unit || '')
+    : axisLabel(activeMeta.label || 'Capacity retention', activeMeta.unit || '%');
+  const xExtent = seriesExtent(displaySeries, 'cycles');
+  const yExtent = seriesExtent(displaySeries, 'values');
+  if (!xExtent || !yExtent) {
+    drawEmptyChart('No plottable data available.', fromStoredPayload, false);
+    return;
+  }
+
+  const fontSize = normalChartFontSize();
+  const option = chartBaseOption({
+    xAxisLabel,
+    yAxisLabel,
+    xmin: xExtent.min,
+    xmax: xExtent.max,
+    ymin: yExtent.min,
+    ymax: yExtent.max
+  });
+  const legendItems = [];
+  const legendSeen = new Set();
+  option.series = displaySeries.map(s => {
+    const xs = s.data.cycles || [], ys = s.data.values || [];
+    const name = s.cell.id;
+    const legendKey = name;
+    if (!legendSeen.has(legendKey)) {
+      legendSeen.add(legendKey);
+      legendItems.push(name);
+    }
+    const data = [];
+    const pointCount = Math.min(xs.length, ys.length);
+    for (let i = 0; i < pointCount; i += 1) {
+      const x = Number(xs[i]);
+      const y = Number(ys[i]);
+      if (!Number.isFinite(x) || !Number.isFinite(y)) continue;
+      data.push([x, y]);
+    }
+    return lineSeriesOption({
+      name,
+      data,
+      symbol: s.marker || 'circle',
+      symbolSize: s.marker ? 8 : 4,
+      color: s.color,
+      itemOpacity: s.marker ? .6 : 0,
+      hoverItemOpacity: s.marker ? .6 : 0,
+      blurItemOpacity: s.marker ? .25 : 0,
+      lineWidth: s.strokeWidth || 1.5,
+      lineOpacity: s.opacity ?? CHART_LINE_OPACITY,
+    });
+  });
+  option.legend = scrollLegendOption({
+    data: legendItems,
+    itemHeight: S.currentTab === 'ts' ? 8 : 2,
+    chartElement: chartEl,
+    fontSize,
+  });
+
+  setChartOption(option);
+  updateChartTitle();
+  document.getElementById('legend-box').innerHTML = '';
+}
+
+function drawEmptyChart(msg='', fromStoredPayload = false, showLabels = false, offlineGrid = false) {
+  if (!fromStoredPayload) chartPayload = { type: 'empty', message: msg, showLabels, offlineGrid };
+  setExplorerChartOfflineGrid(offlineGrid);
+  updateChartTitle();
+  const activeMeta = S.metrics.find(m => m.key === S.currentMetric) || {};
+  const tsCurve = activeTimeSeriesCurve() || {};
+  const xAxisLabel = S.currentTab === 'ts' ? 'Time (s)' : 'Cycle number';
+  const yAxisLabel = S.currentTab === 'ts'
+    ? axisLabel(tsCurve.axis_label || 'Value', tsCurve.unit || '')
+    : axisLabel(activeMeta.label || 'Capacity retention', activeMeta.unit || '%');
+  const option = chartBaseOption({
+    xAxisLabel,
+    yAxisLabel,
+    xmax: 1,
+    ymin: 0,
+    ymax: 1,
+    message: msg,
+    showLabels
+  });
+  setChartOption(option, msg);
+  document.getElementById('legend-box').innerHTML = '';
+}
+
+// -----------------------------------------------------------------------
+// Time Series tab
+// -----------------------------------------------------------------------
+async function plotTimeSeries() {
+  if (!S.apiOk) { drawEmptyChart('Server Offline. Please try again later.', false, false, true); return; }
+  if (!S.selected.length) { drawNoDataSelectedChart(); return; }
+  if (!await requireDataPolicyAcknowledgement()) {
+    drawEmptyChart('Data access acknowledgement required.', false, false, false);
+    return;
+  }
+  const options = await loadTimeSeriesOptions();
+  if (!options || !S.timeSeriesProfiles.length || !S.timeSeriesCurves.length) {
+    drawEmptyChart('No data available', false, false);
+    return;
+  }
+  clampCycleRange();
+  const cycleStart = S.tsCycleStart;
+  const cycleEnd = S.tsCycleEnd;
+  const maxCycle = currentCycleColorMax();
+  const profile = S.currentTimeSeriesProfile;
+  const curve = activeTimeSeriesCurve();
+  if (!profile || !curve) {
+    drawEmptyChart('No data available', false, false);
+    return;
+  }
+  const track = curve.key;
+
+  const missing = S.selected.filter(c => !S.tsCache[`${c.id}__${profile}__${cycleStart}-${cycleEnd}`]);
+  if (missing.length) {
+    const params = new URLSearchParams({
+      cycle_start: String(cycleStart),
+      cycle_end: String(cycleEnd),
+      profile
+    });
+    missing.forEach(cell => params.append('cell_id', cell.id));
+    const payload = await apiFetch(endpointWithParams(API_ENDPOINTS.timeSeries, params), null);
+    (payload?.series || []).forEach(item => {
+      if (item?.cell?.id && item.raw) {
+        S.tsCache[`${item.cell.id}__${profile}__${cycleStart}-${cycleEnd}`] = item.raw;
+      }
+    });
+  }
+  const series = S.selected.map((c, i) => {
+    const raw = S.tsCache[`${c.id}__${profile}__${cycleStart}-${cycleEnd}`];
+    return raw ? {cell: c, color: COLORS[i%COLORS.length], raw} : null;
+  });
+
+  // reuse line chart but with time on X
+  const seriesMapped = series.filter(Boolean).flatMap((s, i) =>
+    groupRawSeriesByCycle(s.raw, track).map(({cycle, data}) => ({
+      cell: s.cell,
+      color: cycleColor(cycle, maxCycle),
+	      marker: MARKERS[i % MARKERS.length],
+	      opacity: CHART_LINE_OPACITY,
+	      strokeWidth: cycleStart === cycleEnd ? 1.5 : 1.05,
+      data: {
+        cycles: data.x,
+        values: data.y,
+        label: curve.axis_label,
+        unit: curve.unit,
+      }
+    }))
+  );
+  if (!seriesMapped.length) {
+    drawEmptyChart('No data available', false, false);
+    return;
+  }
+  renderLineChart(seriesMapped);
+  updateChartTitle();
+}
+
+// -----------------------------------------------------------------------
+// Tab switching
+// -----------------------------------------------------------------------
+function activateExplorerTab(tabName) {
+  const tabButton = document.querySelector(`#tabs-main .tab[data-tab="${tabName}"]`);
+  if (!tabButton) return;
+
+  document.querySelectorAll('#tabs-main .tab').forEach(x => x.classList.remove('active'));
+  tabButton.classList.add('active');
+  S.currentTab = tabName;
+
+  const isCycle    = S.currentTab === 'cycle';
+  const isTs       = S.currentTab === 'ts';
+  const isImp      = S.currentTab === 'imp';
+
+  document.getElementById('cycle-controls').style.display = isCycle ? 'block' : 'none';
+  document.getElementById('ts-controls').style.display   = isTs ? 'flex' : 'none';
+  document.getElementById('explorer-chart-wrap').style.display    = (isCycle || isTs) ? 'block' : 'none';
+  document.getElementById('imp-wrap').style.display      = isImp ? 'block' : 'none';
+
+  updateChartTitle();
+  if (isCycle) plotSelected();
+  else if (isTs) plotTimeSeries();
+}
+
+document.querySelectorAll('#tabs-main .tab').forEach(t => {
+  t.addEventListener('click', () => activateExplorerTab(t.dataset.tab));
+});
+
+// Time series controls
+['ts-cycle-start', 'ts-cycle-end'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    clampCycleRange();
+  });
+  document.getElementById(id).addEventListener('change', () => {
+    clampCycleRange();
+    if (S.currentTab === 'ts') plotTimeSeries();
+  });
+});
+// Plot button (select all visible cells up to 8)
+document.getElementById('select-all').addEventListener('click', selectAllVisible);
+document.getElementById('clear-selection').addEventListener('click', clearSelection);
+
+// -----------------------------------------------------------------------
+// Init
+// -----------------------------------------------------------------------
+async function init() {
+  const initial = await apiFetch(API_ENDPOINTS.cells, null);
+  const badge = document.getElementById('api-badge');
+  if (initial) {
+    S.apiOk = true;
+    S.allCells = initial.cells || [];
+    SodaSite.setApiBadge(badge, initial.status);
+  } else {
+    SodaSite.setApiBadge(badge, null);
+  }
+
+  await loadCycleSeriesOptions();
+  renderTimeSeriesControls();
+
+  if (initial?.facets) buildFilterUI(initial.facets);
+  else buildOfflineFilterUI();
+
+  document.getElementById('match-note').textContent = S.allCells.length + ' matching';
+  updateSelectionUI();
+  renderCellTable(S.allCells);
+  plotSelected();
+}
+
+init();
+</script>
+</body>
+</html>
